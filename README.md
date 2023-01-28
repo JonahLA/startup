@@ -9,11 +9,11 @@ I also looked up the link for how to write better commit messages and I am
 trying to implement what I learned about the Conventional Commits standard,
 too.
 ---
-### This vvv is where I did all of my testing
-Here is a change from VSCode.
-Here, I am adding a few things to then push up to GitHub.
-Here are more changes. And more changes.
+AWS NOTES
+-
+public IP address: 3.133.187.35
+ssh -i [path to key] ubuntu@3.133.187.35
 
-### Perhaps this will do it. We are gonna fix this issue
-
-Here is the section with my **changes** from *GitHub*
+The server is set up with an elastic IP address so that in the case that the 
+server goes offline or needs to reboot or something like that, it will keep
+the same IP address.
