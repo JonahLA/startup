@@ -8,9 +8,7 @@
 
 What is more exciting than watching the DVD logo hit the corner of the screen? How about using that knowledge to garner some bragging rights! The DVD Logo Game allows you to do just that. Go head-to-head with some friends (or even some strangers if you are feeling confident) to see who can choose the safest place to be as the DVD logo traverses the screen. Everyone will pick a location to place their icon before the DVD logo starts moving. Once it does, it will go and eliminate each player it comes into contact with. The last player standing wins!
 
-![Here is a test image.](/images/specification/abyss_by_t1na_dck7m2r.jpg)
-![Here is the second test image.](/images/specification/breathe_again_by_t1na_dalxy0v.jpg)
-![Here is the last test image.](/images/specification/light_by_t1na_d9la8qm.jpg)
+![Rough sketch of different screens of application](/images/specification/rough%20sketch.jpg)
 
 #### Key features:
  - Ability to create a room or to join an existing one
