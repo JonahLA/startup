@@ -27,3 +27,17 @@ What is more exciting than watching the DVD logo hit the corner of the screen? H
 `ssh -i [path to key] ubuntu@3.133.187.35`
 
 The server is set up with an elastic IP address so that in the case that the server goes offline or needs to reboot or something like that, it will keep the same IP address.
+
+---
+
+### SIMON HTML NOTES
+
+When starting a new `html` file, type `html-5` and let VSCode autofill the framework to build the page. This will include empty `<head>` and `<body>` sections as well as the correct `<!DOCTYPE>` at the beginning.
+
+`./deployFiles.sh -k [path to key] -h jonahaustin.click -s simon`
+
+This command in GitBash will run the bash script `deployFiles` which will connect to the server, wipe the old simon files, and copy over the new ones.
+ 
+I often want to split things up into a series of `<p>` blocks in order to distinguish elements on a page. This can also be done using `<div></div> <br/>` elements, or a series of `<div>` and `<br/>` elements.
+ 
+SVGs ARE PRETTY DIFFICULT TO DO BY HAND!! - - use free external editors for this
