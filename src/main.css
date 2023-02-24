@@ -29,6 +29,16 @@ footer a {
     transform: translateX(-50%) translateY(-50%);
 }
 
+.game-title-bar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.game-title {
+    font-weight: bold;
+}
+
 .button-row {
     display: flex;
     flex-direction: row;
@@ -37,6 +47,28 @@ footer a {
 
 .button-row button {
     width: 300px;
+}
+
+.username-title {
+    margin: 0 0 0 10px;
+    font-weight: bold;
+}
+
+.home-button {
+    margin: 0 10px 0 0;
+    color: rgba(var(--bs-light-rgb),var(--bs-text-opacity))!important;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+/* Google icon style */
+.material-symbols-outlined {
+  font-variation-settings:
+  'FILL' 1,
+  'wght' 400,
+  'GRAD' 0,
+  'opsz' 48
 }
 
 #title_logo {
