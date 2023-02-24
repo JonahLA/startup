@@ -1,0 +1,70 @@
+
+* {
+    box-sizing: border-box;
+}
+
+main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-around;
+}
+
+form div {
+    margin: 0.5em;
+}
+
+footer {
+    flex: 0 30px;
+}
+
+footer a {
+    float: right;
+}
+
+.center {
+    top: 50%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-50%);
+}
+
+.button-row {
+    display: flex;
+    flex-direction: row;
+    height: 35px;
+}
+
+.button-row button {
+    width: 300px;
+}
+
+#title_logo {
+    width: 610px;
+}
+
+#input-field {
+    width: 610px;
+}
+
+#input-field span {
+    width: 95px;
+}
+
+#register-button {
+    margin: 0 5px 0 0;
+}
+
+#login-button {
+    margin: 0 0 0 5px;
+}
+
+#username {
+    margin: 0.5em;
+    padding: 0.25em;
+}
+
+#password {
+    margin: 0.5em;
+    padding: 0.25em;
+}
