@@ -62,6 +62,19 @@ footer a {
     align-items: center;
 }
 
+.room-description {
+    margin: 0 0 5px 0;
+}
+
+.room-choice {
+    width: 610px;
+    justify-content: space-around;
+}
+
+.room-search-input {
+    width: 610px;
+}
+
 /* Google icon style */
 .material-symbols-outlined {
   font-variation-settings:
@@ -79,7 +92,7 @@ footer a {
     width: 610px;
 }
 
-#input-field span {
+#input-field .login-field {
     width: 95px;
 }
 

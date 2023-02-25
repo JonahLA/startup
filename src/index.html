@@ -10,19 +10,27 @@
     <title>DVD Logo Game</title>
 </head>
 <body class="d-flex flex-column h-100 bg-light text-dark">
+    <!-- Header -->
+    <header class="container-fluid">
+        <navbar class="navbar fixed-top bg-secondary text-light game-title-bar">
+            <a class="navbar-brand text-reset game-title">DVD Logo Game</a>
+        </navbar>
+    </header>
+
     <!-- Main content -->
     <main class="container-fluid text-center">
         <form method="get" action="lobby.html">
             <!-- Logo -->
-            <img id="title_logo" src="/resources/DVD_logo.svg" alt="DVD Logo">
+            <!-- THIS IMAGE, ACCORDING TO THE SITE I GOT IT FROM (https://en.wikipedia.org/wiki/File:DVD_logo.svg), IS A PART OF THE PUBLIC DOMAIN -->
+            <img id="title_logo" src="/resources/DVD_logo.svg" alt="DVD Logo"/>
 
             <!-- Controls -->
             <div class="input-group mb-auto" id="input-field">
-                <span class="input-group-text" id="username-addon">Username</span>
+                <span class="input-group-text login-field" id="username-addon">Username</span>
                 <input type="text" class="form-control" placeholder="Type here..." aria-label="Username input" aria-describedby="username-addon"/>
             </div>
             <div class="input-group mb-auto" id="input-field">
-                <span class="input-group-text" id="password-addon">Password</span>
+                <span class="input-group-text login-field" id="password-addon">Password</span>
                 <input type="password" class="form-control" placeholder="Type here..." aria-label="Password input" aria-describedby="password-addon"/>
             </div>
             <div class="button-row">
@@ -33,6 +41,7 @@
     </main>
 
     <!-- Footer -->
+    <!-- TODO: what about making the breadcrumb/menu buttons on the bottom and not having a top bar at all? Otherwise, where else will I put the link to the About page? -->
     <footer class="mt-auto py-1 bg-secondary text-light">
         <div class="container-fluid">
             <span>Jonah Austin</span>
