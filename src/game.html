@@ -12,8 +12,87 @@
 </head>
 <body class="d-flex flex-column h-100">
     <!-- Header -->
+    <header class="container-fluid">
+        <nav class="navbar fixed-top bg-secondary text-light">
+            <div class="d-flex flex-row">
+                <a class="navbar-brand text-reset username-title me-1" href="#">[Username]</a>
+                <a class="navbar-text text-reset room-code-title" href="#">/####</a>
+            </div>
+            <!-- This is the home icon we borrow from Google -->
+            <a class="home-button" href="index.html">
+                <span class="material-symbols-outlined">
+                    home
+                </span>
+            </a>
+        </nav>
+    </header>
 
     <!-- Main content -->
+    <main class="game-page container-fluid d-flex flex-row">
+        <!-- We are going to add the current players in a side panel -->
+        <div class="info-section">
+            <!-- We could have a table with ten rows (not including the header) to represent the players in the room -->
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">Wins</th>
+                        <th scope="col">Players</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr class="table-white">
+                        <td>5</td>
+                        <td>Kiegan</td>
+                    </tr>
+                    <tr class="table-white">
+                        <td>3</td>
+                        <td>Tate</td>
+                    </tr>
+                    <tr class="table-white">
+                        <td>1</td>
+                        <td>Jonah</td>
+                    </tr>
+                    <tr class="table-secondary">
+                        <td>--</td>
+                        <td>--</td>
+                    </tr>
+                    <tr class="table-secondary">
+                        <td>--</td>
+                        <td>--</td>
+                    </tr>
+                    <tr class="table-secondary">
+                        <td>--</td>
+                        <td>--</td>
+                    </tr>
+                    <tr class="table-secondary">
+                        <td>--</td>
+                        <td>--</td>
+                    </tr>
+                    <tr class="table-secondary">
+                        <td>--</td>
+                        <td>--</td>
+                    </tr>
+                    <tr class="table-secondary">
+                        <td>--</td>
+                        <td>--</td>
+                    </tr>
+                    <tr class="table-secondary">
+                        <td>--</td>
+                        <td>--</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- We are also going to use this div to control the size of the canvas (making sure to lock the aspect ratio) -->
+        <div class="game-section">
+            <div class="text-secondary">(This canvas will be used by JavaScript for the game once we actually get there.)</div>
+            <canvas class="game-area">
+                <!-- This is the canvas/game area where everything will be rendered via JavaScript -->
+            </canvas>
+        </div>
+    </main>
 
     <!-- Footer -->
     <footer class="mt-auto py-1 bg-secondary text-light">

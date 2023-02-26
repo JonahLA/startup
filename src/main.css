@@ -3,8 +3,12 @@
     box-sizing: border-box;
 }
 
+header {
+    flex: 0 56px;
+}
+
 main {
-    flex: 1;
+    flex: 1 calc(100vh - 86px);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -13,6 +17,10 @@ main {
 
 form div {
     margin: 0.5em;
+}
+
+nav a {
+    text-decoration: none;
 }
 
 footer {
@@ -73,6 +81,28 @@ footer a {
 
 .room-search-input {
     width: 610px;
+}
+
+.room-code-title {
+    color: rgba(var(--bs-light-rgb), 0.5)!important;
+}
+
+.info-section {
+    flex: 1;
+    padding: 10px;
+}
+
+.game-page {
+    padding: 10px;
+}
+
+.game-section {
+    flex: 0 60vw;
+}
+
+.game-area {
+    width: 100%;
+    border: 1px solid rgb(var(--bs-dark-rgb));
 }
 
 /* Google icon style */
