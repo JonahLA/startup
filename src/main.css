@@ -7,6 +7,10 @@ header {
     flex: 0 56px;
 }
 
+body {
+    min-width: 375px;
+}
+
 main {
     flex: 1 calc(100vh - 86px);
     display: flex;
@@ -47,6 +51,10 @@ footer a {
     font-weight: bold;
 }
 
+.intro-content {
+    width: 610px;
+}
+
 .button-row {
     display: flex;
     flex-direction: row;
@@ -70,17 +78,23 @@ footer a {
     align-items: center;
 }
 
+.lobby-window {
+    width: 610px;
+}
+
 .room-description {
     margin: 0 0 5px 0;
 }
 
 .room-choice {
-    width: 610px;
+    width: 100%;
     justify-content: space-around;
+    margin: 0;
 }
 
 .room-search-input {
-    width: 610px;
+    width: 100%;
+    margin: 0;
 }
 
 .room-code-title {
@@ -133,11 +147,12 @@ footer a {
 }
 
 #title_logo {
-    width: 610px;
+    width: 100%;
 }
 
 #input-field {
-    width: 610px;
+    width: 100%;
+    margin: 0;
 }
 
 #input-field .login-field {
@@ -192,5 +207,19 @@ footer a {
 
     footer {
         display: none;
+    }
+}
+
+@media (max-width: 630px) {
+    .intro-content {
+        width: calc((100vx - 30px) / 2);
+    }
+    
+    .button-row button {
+        width: calc((100vw - 30px) / 2);
+    }
+
+    .lobby-window {
+        width: calc(100vw - 20px);
     }
 }
