@@ -28,61 +28,57 @@
     </header>
 
     <!-- Main content -->
-    <main class="game-page container-fluid d-flex flex-row">
+    <main class="game-page container-fluid d-flex">
         <!-- We are going to add the current players in a side panel -->
         <div class="info-section">
-            <!-- We could have a table with ten rows (not including the header) to represent the players in the room -->
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th scope="col">Wins</th>
-                        <th scope="col">Players</th>
-                    </tr>
-                </thead>
 
-                <tbody>
-                    <tr class="table-white">
-                        <td>5</td>
-                        <td>Kiegan</td>
-                    </tr>
-                    <tr class="table-white">
-                        <td>3</td>
-                        <td>Tate</td>
-                    </tr>
-                    <tr class="table-white">
-                        <td>1</td>
-                        <td>Jonah</td>
-                    </tr>
-                    <tr class="table-secondary">
-                        <td>--</td>
-                        <td>--</td>
-                    </tr>
-                    <tr class="table-secondary">
-                        <td>--</td>
-                        <td>--</td>
-                    </tr>
-                    <tr class="table-secondary">
-                        <td>--</td>
-                        <td>--</td>
-                    </tr>
-                    <tr class="table-secondary">
-                        <td>--</td>
-                        <td>--</td>
-                    </tr>
-                    <tr class="table-secondary">
-                        <td>--</td>
-                        <td>--</td>
-                    </tr>
-                    <tr class="table-secondary">
-                        <td>--</td>
-                        <td>--</td>
-                    </tr>
-                    <tr class="table-secondary">
-                        <td>--</td>
-                        <td>--</td>
-                    </tr>
-                </tbody>
-            </table>
+            <!-- INSTEAD OF A TABLE, we are going to make this more responsive by using a GRID instead -->
+            <div class="players-title">Players</div>
+            <div class="container">
+                <div class="players-row row justify-content-md-center">
+                    <div class="col players-body d-flex flex-row">
+                        <span class="me-auto">Kiegan</span>
+                        <span>5 wins</span>
+                    </div>
+                    <div class="col players-body d-flex flex-row">
+                        <span class="me-auto">Tate</span>
+                        <span>3 wins</span>
+                    </div>
+                    <div class="col players-body d-flex flex-row">
+                        <span class="me-auto">Jonah</span>
+                        <span>1 win</span>
+                    </div>
+                    <div class="col players-body players-body-empty d-flex flex-row">
+                        <span class="me-auto">--</span>
+                        <span>--</span>
+                    </div>
+                    <div class="col players-body players-body-empty d-flex flex-row">
+                        <span class="me-auto">--</span>
+                        <span>--</span>
+                    </div>
+                    <div class="col players-body players-body-empty d-flex flex-row">
+                        <span class="me-auto">--</span>
+                        <span>--</span>
+                    </div>
+                    <div class="col players-body players-body-empty d-flex flex-row">
+                        <span class="me-auto">--</span>
+                        <span>--</span>
+                    </div>
+                    <div class="col players-body players-body-empty d-flex flex-row">
+                        <span class="me-auto">--</span>
+                        <span>--</span>
+                    </div>
+                    <div class="col players-body players-body-empty d-flex flex-row">
+                        <span class="me-auto">--</span>
+                        <span>--</span>
+                    </div>
+                    <div class="col players-body players-body-empty d-flex flex-row">
+                        <span class="me-auto">--</span>
+                        <span>--</span>
+                    </div>
+                </div>
+            </div>
+
         </div>
 
         <!-- We are also going to use this div to control the size of the canvas (making sure to lock the aspect ratio) -->

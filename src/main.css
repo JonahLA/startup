@@ -92,7 +92,25 @@ footer a {
     padding: 10px;
 }
 
+.players-title {
+    font-weight: bold;
+}
+
+.players-row > * {
+    flex: 0 0 auto;
+    width: 100%;
+}
+
+.players-body {
+    border: 1px solid black;
+}
+
+.players-body-empty {
+    background-color: hsl(0, 0%, 56%);
+}
+
 .game-page {
+    flex-direction: row;
     padding: 10px;
 }
 
@@ -142,4 +160,37 @@ footer a {
 #password {
     margin: 0.5em;
     padding: 0.25em;
+}
+
+@media (orientation: portrait) {
+    .game-page {
+        flex-direction: column;
+    }
+
+    .info-section {
+        flex: 0 0 144px;
+    }
+
+    .players-row > * {
+        flex: 0 0 auto;
+        width: 50%;
+    }
+
+    .game-section {
+        flex: 1 0 auto;
+    }
+}
+
+@media (max-height: 600px) {
+    header {
+        display: none;
+    }
+
+    main {
+        flex: 1;
+    }
+
+    footer {
+        display: none;
+    }
 }
