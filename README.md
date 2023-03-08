@@ -41,3 +41,13 @@ This command in GitBash will run the bash script `deployFiles` which will connec
 I often want to split things up into a series of `<p>` blocks in order to distinguish elements on a page. This can also be done using `<div></div> <br/>` elements, or a series of `<div>` and `<br/>` elements.
  
 SVGs ARE PRETTY DIFFICULT TO DO BY HAND!! - - use free external editors for this
+
+
+---
+
+### HTML/CSS STARTUP DELIVERABLE NOTES
+
+RESPONSIVENESS
+ - Control responsiveness to width by having an outer parent container whose width you control using @media and then using relative sizing amongst the child elements
+ - TODO: Why am I getting the bug of the header and the body being larger than the viewport EVEN THOUGH their CSS styling lists them as a width of 100%? Their parent objects should be set to the viewport width.
+ - USING GRIDS INSTEAD OF TABLES WORKS OUT REALLY WELL
