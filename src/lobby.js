@@ -55,14 +55,8 @@ class Room {
         this.roomElement.appendChild(roomCapacityElement);
     }
 
-    saveRoomInfo() {
-        // Save this room's info to local storage for later access
-        localStorage.setItem('dvd-game-host-name', this.hostName);
-        localStorage.setItem('dvd-game-room-code', this.roomCode);
-    }
-
     chooseRoom(room) {
-        room.saveRoomInfo();
+        lobbyHandler.saveRoomInfo(room.hostName, room.roomCode);
         window.location.href = "game.html";
     }
 }
@@ -81,7 +75,26 @@ class LobbyHandler {
 
     // TODO: searchRoom() - gets info from room search and searches for room, navigating to it if it exists
     searchRoom() {
-        // TOOD: do
+        // WITHOUT WEB SOCKETS, this will basically just create a new lobby with the room code you put in
+        const roomCodeElement = document.querySelector('#room-code-input');
+        const roomCode = roomCodeElement.value;
+        const hostName = this.getHostName(roomCode);
+
+        // Save the info to local storage and change views to the game
+        this.saveRoomInfo(hostName, roomCode);
+        window.location.href = "game.html";
+    }
+
+    saveRoomInfo(hostName, roomCode) {
+        // Save this room's info to local storage for later access
+        localStorage.setItem('dvd-game-host-name', hostName);
+        localStorage.setItem('dvd-game-room-code', roomCode);
+    }
+
+    // Given a room code, this will query the server for the name of the host that is hosting this room (if they exist)
+    getHostName(roomCode) {
+        // TODO: when we get web sockets and a database, hook this up to that
+        return '[Host name]';
     }
 
     // TODO: UPDATEROOMS() - maybe tie this to a button to refresh the available room search!! (is there a way to do an auto-refresh every five seconds by chaining promises???)
