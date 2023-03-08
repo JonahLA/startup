@@ -79,11 +79,15 @@ class LobbyHandler {
         this.loadRooms();
     }
 
-    // searchRoom() - gets info from room search and searches for room, navigating to it if it exists
-    // UPDATEROOMS() - maybe tie this to a button to refresh the available room search!! (is there a way to do an auto-refresh every five seconds by chaining promises???)
+    // TODO: searchRoom() - gets info from room search and searches for room, navigating to it if it exists
+    searchRoom() {
+        // TOOD: do
+    }
+
+    // TODO: UPDATEROOMS() - maybe tie this to a button to refresh the available room search!! (is there a way to do an auto-refresh every five seconds by chaining promises???)
 
     loadUsername() {
-        // Get the username from local storage and update the username text field with it
+        // Get the username from local storage and update the username text element with it
         const username = localStorage.getItem('dvd-game-username');
         const usernameElement = document.querySelector('#username-tag');
         usernameElement.textContent = username ?? '[Anonymous Player]';

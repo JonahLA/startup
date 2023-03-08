@@ -14,7 +14,7 @@
     <!-- Header (NOTE: fluid containers fill the width of the viewport) -->
     <header class="container-fluid">
         <nav class="navbar fixed-top bg-secondary text-light">
-            <a id="username-tag" class="navbar-brand text-reset username-title" href="#">[Username]</a>
+            <a id="username-tag" class="navbar-brand text-reset username-title" href="#"></a>
             <!-- This is the home icon we borrow from Google -->
             <a class="home-button" href="index.html">
                 <span class="material-symbols-outlined">
@@ -44,7 +44,7 @@
                     <div class="room-search-input input-group mx-auto" id="input-field">
                         <span class="input-group-text">/</span>
                         <input type="text" class="form-control" placeholder="####" pattern="[0-9][0-9][0-9][0-9]" maxLength="4"/>
-                        <button class="btn btn-outline-secondary" type="submit">Enter</button>
+                        <button class="btn btn-outline-secondary" type="submit" onclick="lobbyHandler.searchRoom()">Enter</button>
                     </div>
                 </div>
             </div>
