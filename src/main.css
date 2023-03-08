@@ -86,10 +86,18 @@ footer a {
     margin: 0 0 5px 0;
 }
 
-.room-choice {
+.room-choices {
     width: 100%;
     justify-content: space-around;
     margin: 0;
+}
+
+.room-user {
+    font-weight: bold;
+}
+
+.room-code-option {
+    font-weight: lighter;
 }
 
 .room-search-input {
