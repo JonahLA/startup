@@ -137,7 +137,8 @@ footer a {
 }
 
 .game-section {
-    flex: 0 60vw;
+    margin: 5px;
+    flex: 1;
 }
 
 .game-area {
@@ -186,10 +187,6 @@ footer a {
 }
 
 @media (orientation: portrait) {
-    .game-page {
-        flex-direction: column;
-    }
-
     .info-section {
         flex: 0 0 144px;
     }
@@ -197,10 +194,6 @@ footer a {
     .players-row > * {
         flex: 0 0 auto;
         width: 50%;
-    }
-
-    .game-section {
-        flex: 1 0 auto;
     }
 }
 
