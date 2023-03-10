@@ -62,15 +62,18 @@ class Room {
 }
 
 class LobbyHandler {
+    _TIME_TO_REFRESH_;
     rooms;
     roomChoicesElement;
 
     constructor() {
+        this._TIME_TO_REFRESH_ = 5000; // The page will refresh the available rooms every five seconds
         this.rooms = new Map();
         this.roomChoicesElement = document.querySelector('.room-choices');
 
         this.loadUsername();
         this.loadRooms();
+        // this.refreshCycle(); TODO: when this actually starts to work, we'll uncomment this
     }
 
     // TODO: searchRoom() - gets info from room search and searches for room, navigating to it if it exists
@@ -97,7 +100,20 @@ class LobbyHandler {
         return '[Host name]';
     }
 
-    // TODO: UPDATEROOMS() - maybe tie this to a button to refresh the available room search!! (is there a way to do an auto-refresh every five seconds by chaining promises???)
+    // TODO: refreshRooms() - maybe tie this to a button to refresh the available room search!! (is there a way to do an auto-refresh every five seconds by chaining promises???)
+    refreshCycle() {
+        // TODO: this (HOW DO I USE PROMISES SO THIS IS ON A TIMER WITHOUT ACTUALLY BLOCKING EVERYTHING?)
+        this.delay(this._TIME_TO_REFRESH_)
+            .then((isSuccessful) => this.performRefresh(isSuccessful));
+    }
+
+    performRefresh(isSuccessful) {
+        // If the refresh is successful, do something
+        
+        // If the refresh is not successful, then do something else
+
+        // TODO: THIS WON'T WORK!! WE NEED A FUNCTION TO CHECK IF THERE ARE OPEN ROOMS AND TO RESOLVE/REJECT BASED ON THAT
+    }
 
     loadUsername() {
         // Get the username from local storage and update the username text element with it
@@ -125,6 +141,14 @@ class LobbyHandler {
                 this.rooms.set(emptyRoomElement.id, new Room(availableRoom, emptyRoomElement));
             });
         }
+    }
+
+    async delay(milliseconds) {
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                resolve(true);
+            }, milliseconds);
+        });
     }
 }
 
