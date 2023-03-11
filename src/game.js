@@ -109,10 +109,6 @@ class DVDLogoToken extends Token {
     }
 
     update(game, players) {
-        // Move the DVD logo
-        this.state.centerX += this.state.velocity.x;
-        this.state.centerY += this.state.velocity.y;
-
         // Check if the logo hits a wall
         if (this.state.centerX + (this.width / 2) >= this.context.canvas.width ||
              this.state.centerX - (this.width / 2) <= 0) {
@@ -122,6 +118,10 @@ class DVDLogoToken extends Token {
              this.state.centerY - (this.height / 2) <= 0) {
             this.state.velocity.y *= -1;
         }
+
+        // Move the DVD logo
+        this.state.centerX += this.state.velocity.x;
+        this.state.centerY += this.state.velocity.y;
 
         // Check for collisions
         players.forEach((player) => {
@@ -254,6 +254,7 @@ class Game {
         // If the game is not started yet, then create a player on the click and start it
         if (!this.state.isGameActive) {
             const clickPosition = this.getCursorPosition(event);
+            // TODO: if the player clicks too close to the edge, adjust it in so that the player is fully visible
             this.tokens.players.push(new PlayerToken(clickPosition.x, clickPosition.y, this.context, 'J', 'red'));
             this.startGame();
         }
