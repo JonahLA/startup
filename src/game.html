@@ -84,8 +84,9 @@
         <img id="dvd-logo" src="assets/dvd-logo.svg" hidden/>
 
         <!-- TODO: THERE IS A BUG WITH THE CANVAS GOING ABOVE THE TOP OF THE SCREEN IF THE WIDTH IS TOO BIG -->
+        <!-- TODO: THIS ALSO NEEDS TO BE CENTERED??? -->
         <!-- We are also going to use this div to control the size of the canvas (making sure to lock the aspect ratio) -->
-        <div class="game-section">
+        <div class="game-section d-flex flex-column justify-content-center">
             <div id="instruction-text"></div>
             <canvas class="game-area">
                 <!-- This is the canvas/game area where everything will be rendered via JavaScript -->
