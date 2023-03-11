@@ -102,7 +102,7 @@ class DVDLogoToken extends Token {
     constructor(startX, startY, context) {
         super(startX, startY, DVDLogoToken._DVD_LOGO_WIDTH_, DVDLogoToken._DVD_LOGO_HEIGHT_, context);
         this.state.isActive = false;
-        this.state.velocity = this.randomizeVelocity();
+        this.randomizeVelocity();
 
         // Get the image we will use for the logo from the DOM
         this.image = document.getElementById('dvd-logo');
@@ -139,13 +139,17 @@ class DVDLogoToken extends Token {
     randomizeVelocity() {
         // Pick a random direction
         let angle = Math.random() * (2 * Math.PI);
+        while ((angle > Math.PI / 3 && angle < 2 * Math.PI / 3) ||
+                (angle > 4 * Math.PI / 3 && angle < 5 * Math.PI / 3)) {
+            angle = Math.random() * (2 * Math.PI);
+        }
 
         // Construct a unit vector in that direction
         let baseVector = { x: Math.cos(angle), y: Math.sin(angle) };
 
         // Scale the vector by the base speed of the DVDLogo
         let scaledVector = { x: baseVector.x * DVDLogoToken._BASE_SPEED_, y: baseVector.y * DVDLogoToken._BASE_SPEED_ };
-        return scaledVector;
+        this.state.velocity = scaledVector;
     }
 
     // This is used for collision detection
@@ -289,7 +293,7 @@ class Game {
 
     // Start the game
     startGame() {
-        this.instructionTextElement.textContent = '';
+        this.instructionTextElement.textContent = 'Good luck!';
         this.state.isGameActive = true;
         this.tokens.dvdLogo.randomizeVelocity();
     }
