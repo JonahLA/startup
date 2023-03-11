@@ -51,3 +51,12 @@ RESPONSIVENESS
  - Control responsiveness to width by having an outer parent container whose width you control using @media and then using relative sizing amongst the child elements
  - TODO: Why am I getting the bug of the header and the body being larger than the viewport EVEN THOUGH their CSS styling lists them as a width of 100%? Their parent objects should be set to the viewport width.
  - USING GRIDS INSTEAD OF TABLES WORKS OUT REALLY WELL
+
+---
+
+### JAVASCRIPT DELIVERABLE NOTES
+
+GAME DESIGN
+ - A common framework for handling drawing to a canvas is to set everything up into a `loop` function that is the one that cycles, an `update` function that handles the logic, and a `draw` function that draws elements to the canvas.
+ - PROMISES ARE REALLY GOOD FOR MAKING LOOPS!!!
+ - CANVAS IS WEIRD!! There are two `width` and `height` attributes essentially: one that defines the actual size of the element and then another that defines the size of the coordinate plane inside of the canvas (which is then scaled to the actual size of the canvas).
