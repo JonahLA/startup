@@ -81,10 +81,11 @@
         -->
 
         <!-- THE DVD LOGO TO USE: this is hidden so that it isn't displayed but can be cached in JavaScript for drawing to the canvas -->
-        <img id="dvd-logo" src="assets/DVD_logo.svg" hidden/>
+        <img id="dvd-logo" src="assets/dvd-logo.svg" hidden/>
 
         <!-- We are also going to use this div to control the size of the canvas (making sure to lock the aspect ratio) -->
         <div class="game-section">
+            <div id="instruction-text"></div>
             <canvas class="game-area">
                 <!-- This is the canvas/game area where everything will be rendered via JavaScript -->
             </canvas>

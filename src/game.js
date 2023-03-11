@@ -93,23 +93,22 @@ class Token {
 }
 
 class DVDLogoToken extends Token {
-    // The SVG aspect ratio is basically 2:1
+    // The SVG aspect ratio is 20:9
     static _DVD_LOGO_WIDTH_ = 200;
-    static _DVD_LOGO_HEIGHT_ = 100;
-    static _BASE_SPEED_ = 3;
+    static _DVD_LOGO_HEIGHT_ = 90;
+    static _BASE_SPEED_ = 4;
     image;
 
     constructor(startX, startY, context) {
         super(startX, startY, DVDLogoToken._DVD_LOGO_WIDTH_, DVDLogoToken._DVD_LOGO_HEIGHT_, context);
         this.state.isActive = false;
-        this.state.velocity = this.getStartingVelocity();
-        console.log(`Starting velocity: ${this.state.velocity}`);
+        this.state.velocity = this.randomizeVelocity();
 
         // Get the image we will use for the logo from the DOM
         this.image = document.getElementById('dvd-logo');
     }
 
-    update(players) {
+    update(game, players) {
         // Move the DVD logo
         this.state.centerX += this.state.velocity.x;
         this.state.centerY += this.state.velocity.y;
@@ -127,7 +126,9 @@ class DVDLogoToken extends Token {
         // Check for collisions
         players.forEach((player) => {
             if (checkRectToCircleCollision(this.getRectangle(), player.getCircle())) {
-                console.log("Collision!");
+                if (!player.state.isEliminated) {
+                    game.eliminatePlayer(player);
+                }
             } else {
                 // Nothing
             }
@@ -135,7 +136,7 @@ class DVDLogoToken extends Token {
     }
 
     // Determine a random direction for the logo to move in at the start of the game
-    getStartingVelocity() {
+    randomizeVelocity() {
         // Pick a random direction
         let angle = Math.random() * (2 * Math.PI);
 
@@ -173,6 +174,7 @@ class PlayerToken extends Token {
     constructor(startX, startY, context, letter, color) {
         // Since we are drawing a circle for the player, the width and the height should be the same
         super(startX, startY, PlayerToken._RADIUS_ * 2, PlayerToken._RADIUS_ * 2, context);
+        this.state.isEliminated = false;
 
         this.letter = letter;
         this.color = color;
@@ -185,7 +187,13 @@ class PlayerToken extends Token {
         return circle;
     }
 
+    eliminate() {
+        this.state.isEliminated = true;
+    }
+
     draw() {
+        if (this.state.isEliminated) return;
+
         // Drawing a circle is a special case of drawing an arc inside of a canvas
         this.context.fillStyle = this.color;
         this.context.beginPath();
@@ -210,6 +218,7 @@ class Game {
     height;
     state;
     tokens;
+    instructionTextElement;
 
     constructor() {
         this.canvas = document.querySelector('.game-area');
@@ -221,11 +230,29 @@ class Game {
         this.resize(this);
 
         this.tokens = { 
-            dvdLogo: new DVDLogoToken(this.width / 2, this.height / 3, this.context), 
+            dvdLogo: new DVDLogoToken(this.width / 2, this.height / 2, this.context), 
             players: [
-                new PlayerToken(this.width / 2, this.height / 3, this.context, 'J', 'red')
+                //new PlayerToken(this.width / 2, this.height / 3, this.context, 'J', 'red')
             ] 
         };
+
+        this.instructionTextElement = document.getElementById('instruction-text');
+    }
+
+    getCursorPosition(event) {
+        const rect = this.canvas.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
+        return { x: x, y: y };
+    }
+
+    onClick(event) {
+        // If the game is not started yet, then create a player on the click and start it
+        if (!this.state.isGameActive) {
+            const clickPosition = this.getCursorPosition(event);
+            this.tokens.players.push(new PlayerToken(clickPosition.x, clickPosition.y, this.context, 'J', 'red'));
+            this.startGame();
+        }
     }
 
     resize(gameInstance) {
@@ -237,20 +264,7 @@ class Game {
 
     // Perform the game logic
     update() {
-        // TODO: collision detection
-        /*
-        this.tokens.players.forEach((player) => {
-            if (checkRectToCircleCollision(this.tokens.dvdLogo.getRectangle(), player.getCircle())) {
-                this.debuggingTextElement.textContent = "Collision!";
-            } else {
-                this.debuggingTextElement.textContent = "No collision.";
-            }
-        });
-        */
-
-        this.tokens.dvdLogo.update(this.tokens.players);
-
-        // TODO: is the game over?
+        this.tokens.dvdLogo.update(this, this.tokens.players);
     }
 
     // Draw the game elements
@@ -265,23 +279,39 @@ class Game {
 
     // Run the gameplay loop
     loop() {
-        this.update();
+        if (this.state.isGameActive) this.update();
         this.draw();
 
-        if (this.state.isGameActive) {
-            delay(Game._DELAY_BETWEEN_FRAMES_)
+        // Loop
+        delay(Game._DELAY_BETWEEN_FRAMES_)
                 .then(() => this.loop());
-        }
     }
 
     // Start the game
     startGame() {
+        this.instructionTextElement.textContent = '';
         this.state.isGameActive = true;
+        this.tokens.dvdLogo.randomizeVelocity();
+    }
+
+    // Initialize the game
+    initializeGame() {
+        this.instructionTextElement.textContent = 'Click anywhere to place your player!';
+        this.tokens.dvdLogo.eliminatePlayer = function(player) { this.eliminatePlayer(player); }
         this.loop();
+    }
+
+    // Eliminate the player and end the game
+    eliminatePlayer(player) {
+        player.eliminate();
+        this.state.isGameActive = false;
+        this.instructionTextElement.textContent = "You lose!";
     }
 }
 
 const game = new Game();
+// Add the `getCursorPosition` function to the canvas' `mouseDown` event
+game.canvas.addEventListener('mousedown', function(e) { game.onClick(e) });
 
 class GameHandler {
     constructor() {
@@ -310,4 +340,4 @@ const gameHandler = new GameHandler();
 window.onresize = game.resize(game);
 
 // ENTRY TO GAMEPLAY LOOPS
-game.startGame();
+game.initializeGame();
