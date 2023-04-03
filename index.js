@@ -24,13 +24,6 @@ app.use(express.static('public'));
 let apiRouter = express.Router();
 app.use(`/api`, apiRouter);
 
-// THIS IS PURELY FOR DEBUGGING - - this middleware gets called before anything else and then passes it off to the next middleware available
-// Think of this like a @BeforeEach from JUnit tests
-apiRouter.use((_req, _res, next) => {
-    console.log(`The request is being routed.`);
-    next();
-});
-
 // Get username of logged-in user (GET /user)
 apiRouter.get('/user:username', async (req, res) => {
     const user = database.getUser(req.params.username);
