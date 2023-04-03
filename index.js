@@ -1,6 +1,7 @@
 
 const express = require('express');
 const app = express();
+const cookieParser = require('cookie-parser');
 const database = require('./database.js');
 const bcrypt = require('bcrypt');
 
@@ -11,6 +12,9 @@ const port = (process.argv.length > 2) ? process.argv[2] : 3000;
 
 // JSON body parsing using built-in middleware
 app.use(express.json());
+
+// Set up the middleware to parse cookies
+app.use(cookieParser());
 
 // Set up the middleware to serve the static files
 app.use(express.static('public'));
@@ -24,21 +28,21 @@ app.use(express.static('public'));
 let apiRouter = express.Router();
 app.use(`/api`, apiRouter);
 
-// Get username of logged-in user (GET /user)
-apiRouter.get('/user:username', async (req, res) => {
-    const user = database.getUser(req.params.username);
+// Get username of logged-in user (GET /api/user:username)
+apiRouter.get('/user/:username', async (req, res) => {
+    const user = await database.getUser(req.params.username);
 
     // If the user is found, then send a response telling if the user is authenticated or not
     if (user) {
         const token = req?.cookies.token;
-        res.send({ username: user.username, authenticated: token === user.token});
+        res.send({ username: user.username, authenticated: token === user.token });
     } else {
         // If the user is not found, then send an 404 response
         res.status(404).send({ message: 'Unknown user'});
     }
 });
 
-// Register user (POST /user/register) { "username": "username", "password": "password" }
+// Register user (POST /api/user/register) { "username": "username", "password": "password" }
 apiRouter.post('/user/register', async (req, res) => {
     const user = await database.getUser(req.body.username);
 
@@ -53,7 +57,7 @@ apiRouter.post('/user/register', async (req, res) => {
     }
 });
 
-// Login user (POST /user/login) { "username": "username", "password": "password" }
+// Login user (POST /api/user/login) { "username": "username", "password": "password" }
 apiRouter.post('/user/login', async (req, res) => {
     const user = await database.getUser(req.body.username);
 
@@ -69,21 +73,27 @@ apiRouter.post('/user/login', async (req, res) => {
     }
 });
 
-// Get list of lobbies (GET /lobby)
+// Logout user (DELETE /api/user/logout)
+apiRouter.delete('/user/logout', async (_req, res) => {
+    res.clearCookie(AUTH_COOKIE_NAME);
+    res.status(204).end();
+});
+
+// Get list of lobbies (GET /api/lobby)
 apiRouter.get('/lobby', (_req, res) => {
     res.send({ message: 'Getting lobby list' });
     res.send(JSON.stringify(lobbies));
     console.log(`Retrieving list of lobbies`);
 });
 
-// Search for lobby (POST /lobby) { "roomCode": "1234" }
+// Search for lobby (POST /api/lobby) { "roomCode": "1234" }
 apiRouter.post('/lobby', (req, res) => {
     // TODO: attempt to enter lobby given by roomCode
     res.send({ message: 'Trying to join lobby' });
     console.log(`Joining lobby: #${req.body.roomCode}`);
 });
 
-// Get user's stats (GET /stats?username=[username])
+// Get user's stats (GET /api/stats?username=[username])
 apiRouter.get('/stats/user', (_req, res) => {
     // TODO: retrieve user's stats
     // TODO: figure out how to parse parameter from URI

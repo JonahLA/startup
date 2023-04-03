@@ -1,4 +1,28 @@
 
+// See if there is a user logged-in or not to display the correct controls
+(async () => {
+    let authenticated = false;
+    const username = localStorage.getItem('username');
+
+    // If the username is logged into storage, check to see if they are authenticated or not
+    if (username) {
+        const user = await getUser(username);
+        authenticated = user.authenticated;
+    }
+
+    // If they are authenticated, then display the continue controls
+    if (authenticated) {
+        document.querySelector('#welcome-username').textContent = `Welcome back, ${username}!`;
+        setDisplay('#login-controls', 'none');
+        setDisplay('#continue-controls', 'block');
+    } else {
+        // Otherwise, display the authentication controls
+        document.querySelector('#username-field').textContent = username;
+        setDisplay('#login-controls', 'block');
+        setDisplay('#continue-controls', 'login');
+    }
+})();
+
 async function login() {
     this.loginOrRegister('login');
 }
@@ -18,12 +42,12 @@ async function loginOrRegister(endpoint) {
         method: 'POST',
         body: JSON.stringify(user),
         headers: { 'Content-Type': 'application/json; charset=UTF-8', }
-    })
+    });
     const body = await response.json();
 
     if (response?.status === 200) {
         localStorage.setItem("username", username);
-        window.location.href = 'lobby.html';
+        toLobby();
     } else {
         // SHOW ERROR MESSAGE
         const modalEl = document.querySelector('#msgModal');
@@ -31,6 +55,25 @@ async function loginOrRegister(endpoint) {
         const msgModal = new bootstrap.Modal(modalEl, {});
         msgModal.show();
     }
+}
+
+async function getUser(username) {
+    const response = await fetch(`/api/user/${username}`);
+    if (response.status === 200) {
+        return response.json();
+    } else {
+        return null;
+    }
+}
+
+function logout() {
+    fetch(`/api/user/logout`, {
+        method: 'delete',
+    }).then(() => {window.location.href = '/'});
+}
+
+function toLobby() {
+    window.location.href = 'lobby.html';
 }
 
 function checkCompletion() {
@@ -53,4 +96,8 @@ function checkCompletion() {
             buttonElement.setAttribute('disabled', '');    
         }
     });
+}
+
+function setDisplay(controlsID, value) {
+    document.querySelector(controlsID).style.display = value;
 }
