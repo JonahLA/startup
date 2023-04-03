@@ -19,7 +19,7 @@
 
     <!-- Main content -->
     <main class="intro-content container-fluid text-center d-flex flex-column justify-content-center">
-        <form method="get" action="lobby.html">
+        <div>
             <!-- Logo -->
             <!-- THIS IMAGE, ACCORDING TO THE SITE I GOT IT FROM (https://en.wikipedia.org/wiki/File:DVD_logo.svg), IS A PART OF THE PUBLIC DOMAIN -->
             <img id="title_logo" src="./assets/dvd-logo.svg" alt="DVD Logo"/>
@@ -27,17 +27,34 @@
             <!-- Controls -->
             <div class="input-group mb-auto" id="input-field">
                 <span class="input-group-text login-field" id="username-addon">Username</span>
-                <input type="text" id="username-field" class="form-control required-field" placeholder="Type here..." oninput="authenticationHandler.checkCompletion(this)" aria-label="Username input" aria-describedby="username-addon"/>
+                <input type="text" id="username-field" class="form-control required-field" placeholder="Type here..." oninput="checkCompletion()" aria-label="Username input" aria-describedby="username-addon"/>
             </div>
             <div class="input-group mb-auto" id="input-field">
                 <span class="input-group-text login-field" id="password-addon">Password</span>
-                <input type="password" id="password-field" class="form-control required-field" placeholder="Type here..." oninput="authenticationHandler.checkCompletion(this)" aria-label="Password input" aria-describedby="password-addon"/>
+                <input type="password" id="password-field" class="form-control required-field" placeholder="Type here..." oninput="checkCompletion()" aria-label="Password input" aria-describedby="password-addon"/>
             </div>
             <div class="button-row">
-                <button type="submit" id="register-button" class="btn btn-secondary submission-button" onclick="authenticationHandler.register()" disabled>Register</button>
-                <button type="submit" id="login-button" class="btn btn-primary submission-button" onclick="authenticationHandler.login()" disabled>Login</button>
+                <button type="submit" id="register-button" class="btn btn-secondary submission-button" onclick="register()" disabled>Register</button>
+                <button type="submit" id="login-button" class="btn btn-primary submission-button" onclick="login()" disabled>Login</button>
             </div>
-        </form>
+        </div>
+
+        <!-- Error dialog -->
+        <div class="modal fade" id="msgModal" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content text-dark">
+                <div class="modal-body"></div>
+                <div class="modal-footer">
+                <button
+                    type="button"
+                    class="btn btn-secondary"
+                    data-bs-dismiss="modal"
+                >
+                    Close
+                </button>
+                </div>
+            </div>
+        </div>
     </main>
 
     <!-- Footer -->

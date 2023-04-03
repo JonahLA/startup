@@ -28,12 +28,12 @@ function getUserByToken(token) {
     return userCollection.findOne({ token: token });
 }
 
-async function createUser(user) {
+async function createUser(userData) {
     // Hash the password to store in the database
-    const passHash = await bcrypt.hash(user.password, SALT_FACTOR);
+    const passHash = await bcrypt.hash(userData.password, SALT_FACTOR);
 
     // Store the user in the database
-    const user = { username: user.username, password: passHash, token: uuid.v4() };
+    const user = { username: userData.username, password: passHash, token: uuid.v4() };
     await userCollection.insertOne(user);
 
     return user;

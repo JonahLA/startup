@@ -26,6 +26,10 @@ async function loginOrRegister(endpoint) {
         window.location.href = 'lobby.html';
     } else {
         // SHOW ERROR MESSAGE
+        const modalEl = document.querySelector('#msgModal');
+        modalEl.querySelector('.modal-body').textContent = `⚠ Error: ${body.message}`;
+        const msgModal = new bootstrap.Modal(modalEl, {});
+        msgModal.show();
     }
 }
 
