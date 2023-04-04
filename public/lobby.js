@@ -115,8 +115,8 @@ class LobbyHandler {
         // TODO: THIS WON'T WORK!! WE NEED A FUNCTION TO CHECK IF THERE ARE OPEN ROOMS AND TO RESOLVE/REJECT BASED ON THAT
     }
 
-    loadUsername() {
-        // Get the username from local storage and update the username text element with it
+    // Get the username of the currently logged-in user and update the username text element with it
+    async loadUsername() {
         const username = localStorage.getItem('dvd-game-username');
         const usernameElement = document.querySelector('#username-tag');
         usernameElement.textContent = username ?? '[Anonymous Player]';

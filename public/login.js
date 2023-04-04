@@ -2,12 +2,12 @@
 // See if there is a user logged-in or not to display the correct controls
 (async () => {
     let authenticated = false;
-    const username = localStorage.getItem('username');
+    const username = localStorage.getItem('dvd-game-username');
 
     // If the username is logged into storage, check to see if they are authenticated or not
     if (username) {
         const user = await getUser(username);
-        authenticated = user.authenticated;
+        authenticated = user?.authenticated;
     }
 
     // If they are authenticated, then display the continue controls
@@ -46,7 +46,7 @@ async function loginOrRegister(endpoint) {
     const body = await response.json();
 
     if (response?.status === 200) {
-        localStorage.setItem("username", username);
+        localStorage.setItem("dvd-game-username", username);
         toLobby();
     } else {
         // SHOW ERROR MESSAGE
