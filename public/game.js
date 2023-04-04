@@ -255,7 +255,15 @@ class Game {
         if (!this.state.isGameActive) {
             const clickPosition = this.getCursorPosition(event);
             // TODO: if the player clicks too close to the edge, adjust it in so that the player is fully visible
-            this.tokens.players.push(new PlayerToken(clickPosition.x, clickPosition.y, this.context, 'J', 'red'));
+
+            // Get the username and use the first letter in the token
+            const username = localStorage.getItem('username');
+            const letter = username.charAt(0).toUpperCase();
+
+            // Get random color for token
+            const color = this._getRandomColor();
+
+            this.tokens.players.push(new PlayerToken(clickPosition.x, clickPosition.y, this.context, letter, color));
             this.startGame();
         }
     }
@@ -311,6 +319,11 @@ class Game {
         player.eliminate();
         this.state.isGameActive = false;
         this.instructionTextElement.textContent = "You lose!";
+    }
+
+    // Generate a random color
+    _getRandomColor() {
+        return '#'+(0x1000000+Math.random()*0xffffff).toString(16).substr(1,6);
     }
 }
 
