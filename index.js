@@ -79,22 +79,35 @@ apiRouter.delete('/user/logout', async (_req, res) => {
     res.status(204).end();
 });
 
+// Create a secure router that will authenticate before attempting any of the endpoints
+let secureApiRouter = express.Router();
+apiRouter.use(secureApiRouter);
+
+secureApiRouter.use(async (req, res, next) => {
+    const authToken = req.cookies[AUTH_COOKIE_NAME];
+    const user = await database.getUserByToken(authToken);
+
+    // If the user is authenticated, then continue with the endpoint call
+    if (user) next();
+    else res.status(401).send({ message: 'Unauthorized'});
+});
+
 // Get list of lobbies (GET /api/lobby)
-apiRouter.get('/lobby', (_req, res) => {
+secureApiRouter.get('/lobby', (_req, res) => {
     res.send({ message: 'Getting lobby list' });
     res.send(JSON.stringify(lobbies));
     console.log(`Retrieving list of lobbies`);
 });
 
 // Search for lobby (POST /api/lobby) { "roomCode": "1234" }
-apiRouter.post('/lobby', (req, res) => {
+secureApiRouter.post('/lobby', (req, res) => {
     // TODO: attempt to enter lobby given by roomCode
     res.send({ message: 'Trying to join lobby' });
     console.log(`Joining lobby: #${req.body.roomCode}`);
 });
 
 // Get user's stats (GET /api/stats?username=[username])
-apiRouter.get('/stats/user', (_req, res) => {
+secureApiRouter.get('/stats/user', (_req, res) => {
     // TODO: retrieve user's stats
     // TODO: figure out how to parse parameter from URI
     res.send({ message: 'Getting stats for current user' });
@@ -102,7 +115,7 @@ apiRouter.get('/stats/user', (_req, res) => {
 });
 
 // Get lobby's stats (GET /stats?room-code=[roomCode]) or (GET /stats)
-apiRouter.get('/stats/lobby', (_req, res) => {
+secureApiRouter.get('/stats/lobby', (_req, res) => {
     // TODO: retrieve lobby's stats
     // TODO: figure out how to parse parameter from URI
     res.send({ message: 'Getting stats for current lobby' });
@@ -110,13 +123,18 @@ apiRouter.get('/stats/lobby', (_req, res) => {
 });
 
 // Submit game info [from individual client] (POST /stats) { "username": "username", "outcome": "win/loss" }
-apiRouter.post('/stats', (req, res) => {
+secureApiRouter.post('/stats', (req, res) => {
     // TODO: attempt to enter lobby given by roomCode
     res.send({ message: 'Submitting stats for user' });
     console.log(`Submitting stats for ${req.body.username} who got a ${req.body.outcome}`);
 });
 
 
+
+// Default error handler
+app.use(function (err, req, res, next) {
+    res.status(500).send({ type: err.name, message: err.message });
+});
 
 // This is a fall-through middleware that serves the 'index.html' file if the given URL doesn't match anything else
 app.use((_req, res) => {
@@ -131,9 +149,9 @@ const httpServer = app.listen(port, () => {
 // Set the authToken in the response
 function setAuthCookie(res, authToken) {
     res.cookie(AUTH_COOKIE_NAME, authToken, {
-      secure: true,
-      httpOnly: true,
-      sameSite: 'strict',
+        secure: true,
+        httpOnly: true,
+        sameSite: 'strict',
     });
 }
 
