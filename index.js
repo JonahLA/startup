@@ -146,6 +146,8 @@ const httpServer = app.listen(port, () => {
     console.log(`Listening on port ${port}`);
 });
 
+new PeerProxy(httpServer);
+
 // Set the authToken in the response
 function setAuthCookie(res, authToken) {
     res.cookie(AUTH_COOKIE_NAME, authToken, {
@@ -163,7 +165,7 @@ function setAuthCookie(res, authToken) {
 */
 const TEST_LOBBIES = [
     { hostName: 'Kiegan', roomCode: '1234', occupancy: 7 },
-    { hostName: 'Rocky', roomCode: '7264', occupancy: 4},
+    { hostName: 'Rocky', roomCode: '7264', occupancy: 4 },
     { hostName: 'Jameson', roomCode: '9182', occupancy: 3 },
     { hostName: 'Jones', roomCode: '4747', occupancy: 1 },
 ]
