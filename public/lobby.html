@@ -25,7 +25,6 @@
     </header>
 
     <main class="container-fluid text-center">
-        <form method="get" action="game.html">
             <!-- Main content -->
             <div class="lobby-window container-fluid d-flex flex-column justify-content-center">
                 <!-- This will hold the elements associated with choosing an open room -->
@@ -37,18 +36,23 @@
                 </div>
 
                 <!-- This will hold the elements associated with searching for a room -->
-                <div class="room-search-window container-fluid d-flex flex-column justify-content-center">
-                    <div class="room-description">Or search for a room...</div>
+                <div class="room-search-window container-fluid d-flex flex-column justify-content-center mb-3">
+                    <div class="room-description">Search for a room...</div>
 
                     <!-- We are going to create a block element that will allow for input of the room code -->
                     <div class="room-search-input input-group mx-auto" id="input-field">
                         <span class="input-group-text">/</span>
                         <input type="text" id='room-code-input' class="form-control" placeholder="####" pattern="[0-9][0-9][0-9][0-9]" maxLength="4"/>
-                        <button class="btn btn-outline-secondary" type="submit" onclick="lobbyHandler.searchRoom()">Enter</button>
+                        <button class="btn btn-outline-secondary" onclick="lobbyHandler.searchRoom()">Enter</button>
                     </div>
                 </div>
+
+                <!-- This will hold the elements associated with creating a room -->
+                <div class="room-create-window container-fluid d-flex flex-column justify-content-center">
+                    <div class="room-description">Or create a room...</div>
+                    <button class="btn btn-primary" onclick="lobbyHandler.createRoom()">Create</button>
+                </div>
             </div>
-        </form>
     </main>
 
     <!-- Footer -->
