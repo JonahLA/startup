@@ -4,6 +4,7 @@ const app = express();
 const cookieParser = require('cookie-parser');
 const database = require('./database.js');
 const bcrypt = require('bcrypt');
+const { PeerProxy } = require('./peerProxy.js');
 
 const AUTH_COOKIE_NAME = "token"
 
@@ -83,51 +84,68 @@ apiRouter.delete('/user/logout', async (_req, res) => {
 let secureApiRouter = express.Router();
 apiRouter.use(secureApiRouter);
 
-secureApiRouter.use(async (req, res, next) => {
-    const authToken = req.cookies[AUTH_COOKIE_NAME];
-    const user = await database.getUserByToken(authToken);
+// secureApiRouter.use(async (req, res, next) => {
+//     const authToken = req.cookies[AUTH_COOKIE_NAME];
+//     const user = await database.getUserByToken(authToken);
 
-    // If the user is authenticated, then continue with the endpoint call
-    if (user) next();
-    else res.status(401).send({ message: 'Unauthorized'});
-});
+//     // If the user is authenticated, then continue with the endpoint call
+//     if (user) next();
+//     else res.status(401).send({ message: 'Unauthorized'});
+// });
 
-// Get list of lobbies (GET /api/lobby)
-secureApiRouter.get('/lobby', (_req, res) => {
-    res.send({ message: 'Getting lobby list' });
+// Get list of lobbies (GET /api/lobby) RESULT: [{ "roomCode": "1234", "hostname": "Kiegan" }, { "roomCode": "A7J8", "hostname": "Jones" }, ...]
+secureApiRouter.get('/lobby', async (_req, res) => {
+    const lobbies = await database.getLobbies();
     res.send(JSON.stringify(lobbies));
     console.log(`Retrieving list of lobbies`);
 });
 
-// Search for lobby (POST /api/lobby) { "roomCode": "1234" }
-secureApiRouter.post('/lobby', (req, res) => {
-    // TODO: attempt to enter lobby given by roomCode
-    res.send({ message: 'Trying to join lobby' });
-    console.log(`Joining lobby: #${req.body.roomCode}`);
+// Create lobby (POST /api/lobby) REQUEST: { "roomCode": "1234", "hostname": "Kiegan" } RESULT: { "roomCode": "1234", "hostname": "Kiegan" }
+secureApiRouter.post('/lobby', async (req, res) => {
+    const lobbyData = { roomCode: req.body.roomCode, hostname: req.body.hostname };
+    const lobby = await database.createLobby(lobbyData);
+    res.send(JSON.stringify(lobby));
+    console.log(`Creating lobby(#${req.body.roomCode})`);
 });
 
-// Get user's stats (GET /api/stats?username=[username])
-secureApiRouter.get('/stats/user', (_req, res) => {
-    // TODO: retrieve user's stats
-    // TODO: figure out how to parse parameter from URI
-    res.send({ message: 'Getting stats for current user' });
-    console.log(`Getting stats for user`);
+// Search for lobby (GET /api/lobby/1234) RESULT: { "roomCode": "1234", "hostname": "Kiegan" }
+secureApiRouter.get('/lobby/:roomCode', async (req, res) => {
+    const roomCode = req.params.roomCode;
+    const lobby = await database.getLobby(roomCode);
+    res.send(JSON.stringify(lobby));
+    console.log(`Searched for lobby(#${roomCode}) and found:\n${JSON.stringify(lobby)}`);
 });
 
-// Get lobby's stats (GET /stats?room-code=[roomCode]) or (GET /stats)
-secureApiRouter.get('/stats/lobby', (_req, res) => {
-    // TODO: retrieve lobby's stats
-    // TODO: figure out how to parse parameter from URI
-    res.send({ message: 'Getting stats for current lobby' });
-    console.log(`Getting stats for lobby`);
+// Close lobby (DELETE /api/lobby/1234)
+secureApiRouter.delete('/lobby/:roomCode', async (req, res) => {
+    const roomCode = req.params.roomCode;
+    const result = await database.deleteLobby(roomCode);
+    res.send({ message: result });
+    console.log(`Closing lobby(#${roomCode})`);
 });
 
-// Submit game info [from individual client] (POST /stats) { "username": "username", "outcome": "win/loss" }
-secureApiRouter.post('/stats', (req, res) => {
-    // TODO: attempt to enter lobby given by roomCode
-    res.send({ message: 'Submitting stats for user' });
-    console.log(`Submitting stats for ${req.body.username} who got a ${req.body.outcome}`);
-});
+// // Get user's stats (GET /api/stats?username=[username])
+// secureApiRouter.get('/stats/user', (_req, res) => {
+//     // TODO: retrieve user's stats
+//     // TODO: figure out how to parse parameter from URI
+//     res.send({ message: 'Getting stats for current user' });
+//     console.log(`Getting stats for user`);
+// });
+
+// // Get lobby's stats (GET /stats?room-code=[roomCode]) or (GET /stats)
+// secureApiRouter.get('/stats/lobby', (_req, res) => {
+//     // TODO: retrieve lobby's stats
+//     // TODO: figure out how to parse parameter from URI
+//     res.send({ message: 'Getting stats for current lobby' });
+//     console.log(`Getting stats for lobby`);
+// });
+
+// // Submit game info [from individual client] (POST /stats) { "username": "username", "outcome": "win/loss" }
+// secureApiRouter.post('/stats', (req, res) => {
+//     // TODO: attempt to enter lobby given by roomCode
+//     res.send({ message: 'Submitting stats for user' });
+//     console.log(`Submitting stats for ${req.body.username} who got a ${req.body.outcome}`);
+// });
 
 
 
