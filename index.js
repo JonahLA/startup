@@ -84,18 +84,18 @@ apiRouter.delete('/user/logout', async (_req, res) => {
 let secureApiRouter = express.Router();
 apiRouter.use(secureApiRouter);
 
-// secureApiRouter.use(async (req, res, next) => {
-//     const authToken = req.cookies[AUTH_COOKIE_NAME];
-//     const user = await database.getUserByToken(authToken);
+secureApiRouter.use(async (req, res, next) => {
+    const authToken = req.cookies[AUTH_COOKIE_NAME];
+    const user = await database.getUserByToken(authToken);
 
-//     // If the user is authenticated, then continue with the endpoint call
-//     if (user) next();
-//     else res.status(401).send({ message: 'Unauthorized'});
-// });
+    // If the user is authenticated, then continue with the endpoint call
+    if (user) next();
+    else res.status(401).send({ message: 'Unauthorized'});
+});
 
 // Get list of lobbies (GET /api/lobby) RESULT: [{ "roomCode": "1234", "hostname": "Kiegan" }, { "roomCode": "A7J8", "hostname": "Jones" }, ...]
 secureApiRouter.get('/lobby', async (_req, res) => {
-    const lobbies = await database.getLobbies();
+    const lobbies = getLobbies();
     res.send(JSON.stringify(lobbies));
     console.log(`Retrieving list of lobbies`);
 });
@@ -103,7 +103,7 @@ secureApiRouter.get('/lobby', async (_req, res) => {
 // Create lobby (POST /api/lobby) REQUEST: { "roomCode": "1234", "hostname": "Kiegan" } RESULT: { "roomCode": "1234", "hostname": "Kiegan" }
 secureApiRouter.post('/lobby', async (req, res) => {
     const lobbyData = { roomCode: req.body.roomCode, hostname: req.body.hostname };
-    const lobby = await database.createLobby(lobbyData);
+    const lobby = openLobby(lobbyData);
     res.send(JSON.stringify(lobby));
     console.log(`Creating lobby(#${req.body.roomCode})`);
 });
@@ -111,41 +111,40 @@ secureApiRouter.post('/lobby', async (req, res) => {
 // Search for lobby (GET /api/lobby/1234) RESULT: { "roomCode": "1234", "hostname": "Kiegan" }
 secureApiRouter.get('/lobby/:roomCode', async (req, res) => {
     const roomCode = req.params.roomCode;
-    const lobby = await database.getLobby(roomCode);
-    res.send(JSON.stringify(lobby));
+    const lobby = getLobby(roomCode);
+    if (lobby) res.send(JSON.stringify(lobby));
+    else res.status(204).send();
     console.log(`Searched for lobby(#${roomCode}) and found:\n${JSON.stringify(lobby)}`);
 });
 
 // Close lobby (DELETE /api/lobby/1234)
 secureApiRouter.delete('/lobby/:roomCode', async (req, res) => {
     const roomCode = req.params.roomCode;
-    const result = await database.deleteLobby(roomCode);
-    res.send({ message: result });
+    const result = closeLobby(roomCode);
+    if (result) res.status(200).send();
+    else res.status(400).send();
     console.log(`Closing lobby(#${roomCode})`);
 });
 
-// // Get user's stats (GET /api/stats?username=[username])
-// secureApiRouter.get('/stats/user', (_req, res) => {
-//     // TODO: retrieve user's stats
-//     // TODO: figure out how to parse parameter from URI
-//     res.send({ message: 'Getting stats for current user' });
-//     console.log(`Getting stats for user`);
-// });
+// TODO: this documentation
+secureApiRouter.post('/lobby/join', (req, res) => {
+    const roomCode = req.body.roomCode;
+    const username = req.body.username;
+    const result = joinLobby(roomCode, username);
+    if (result) res.status(200).send();
+    else res.status(400).send();
+    console.log(`${username} is joining lobby(#${roomCode})`);
+});
 
-// // Get lobby's stats (GET /stats?room-code=[roomCode]) or (GET /stats)
-// secureApiRouter.get('/stats/lobby', (_req, res) => {
-//     // TODO: retrieve lobby's stats
-//     // TODO: figure out how to parse parameter from URI
-//     res.send({ message: 'Getting stats for current lobby' });
-//     console.log(`Getting stats for lobby`);
-// });
-
-// // Submit game info [from individual client] (POST /stats) { "username": "username", "outcome": "win/loss" }
-// secureApiRouter.post('/stats', (req, res) => {
-//     // TODO: attempt to enter lobby given by roomCode
-//     res.send({ message: 'Submitting stats for user' });
-//     console.log(`Submitting stats for ${req.body.username} who got a ${req.body.outcome}`);
-// });
+// TODO: this documentation
+secureApiRouter.delete('/lobby/join', (req, res) => {
+    const roomCode = req.body.roomCode;
+    const username = req.body.username;
+    const result = leaveLobby(roomCode, username);
+    if (result) res.status(200).send();
+    else res.status(400).send();
+    console.log(`${username} is leaving lobby(#${roomCode})`);
+});
 
 
 
@@ -177,22 +176,75 @@ function setAuthCookie(res, authToken) {
 
 
 
-/* ========================================
-    CREATE OUR DATA OBJECTS (for temp use)
-   ========================================
-*/
-const TEST_LOBBIES = [
-    { hostName: 'Kiegan', roomCode: '1234', occupancy: 7 },
-    { hostName: 'Rocky', roomCode: '7264', occupancy: 4 },
-    { hostName: 'Jameson', roomCode: '9182', occupancy: 3 },
-    { hostName: 'Jones', roomCode: '4747', occupancy: 1 },
-]
-
 let lobbies = [];
-let currentLobby = { hostName: null, roomCode: null, players: [] };
 
 // Queries the database for available lobbies to join
-function loadLobbies() {
-    // TEMP: atm, we will just load the TEST_LOBBIES
-    lobbies = TEST_LOBBIES;
+function getLobbies() {
+    let availableLobbies = [];
+    lobbies.forEach((lobby) => {
+        if (lobby.players.length < 10) availableLobbies.push(lobbies);
+    });
+    return availableLobbies;
+}
+
+// Takes a lobbyData dict and creates a lobby from it
+function openLobby(lobbyData) {
+    // Check that the roomCode isn't being used already
+    lobbies.forEach((lobby) => {
+        if (lobby.roomCode === lobbyData.roomCode) throw 'That room code is already being used.';
+    });
+
+    // Create a lobby and add it to the list of lobbies
+    const lobby = { roomCode: lobbyData.roomCode, hostname: lobbyData.hostname, players: [] };
+    lobbies.push(lobby);
+    return lobby;
+}
+
+// Takes a room code and closes that lobby, returning a boolean indicating whether a lobby with that room code was found
+function closeLobby(roomCode) {
+    let isFound;
+    lobbies.findIndex((lobby, i) => {
+        if (lobby.roomCode === roomCode) {
+            isFound = true;
+            lobbies.splice(i, 1);
+            return true;
+        }
+    });
+    return isFound;
+}
+
+// Takes a room code and returns that lobby
+function getLobby(roomCode) {
+    let foundLobby;
+    lobbies.forEach((lobby) => {
+        if (lobby.roomCode === roomCode) foundLobby = lobby;
+    });
+    return foundLobby;
+}
+
+function joinLobby(roomCode, username) {
+    let isSuccessful;
+    lobbies.forEach((lobby) => {
+        if (lobby.roomCode === roomCode) {
+            lobby.players.push(username);
+            isSuccessful = true;
+        }
+    });
+    return isSuccessful;
+}
+
+function leaveLobby(roomCode, username) {
+    let isSuccessful;
+    lobbies.forEach((lobby) => {
+        if (lobby.roomCode === roomCode) {
+            lobby.players.findIndex((player, i) => {
+                if (player === username) {
+                    lobby.players.splice(i, 1);
+                    isSuccessful = true;
+                    return true;
+                }
+            });
+        }
+    });
+    return isSuccessful;
 }

@@ -1,27 +1,27 @@
 
-function createTestData() {
-    const testRoomOne = { hostname: 'Kiegan', roomCode: '1234', numPeopleInLobby: '7' };
-    const testRoomTwo = { hostname: 'Tate', roomCode: '5678', numPeopleInLobby: '4' };
-    const testRoomThree = { hostname: 'Rocky', roomCode: '9012', numPeopleInLobby: '2' };
-    const testRoomFour = { hostname: 'Jones', roomCode: '4747', numPeopleInLobby: '1' }
-    const testRooms = [testRoomOne, testRoomTwo, testRoomThree, testRoomFour];
+// function createTestData() {
+//     const testRoomOne = { hostname: 'Kiegan', roomCode: '1234', occupancy: '7' };
+//     const testRoomTwo = { hostname: 'Tate', roomCode: '5678', occupancy: '4' };
+//     const testRoomThree = { hostname: 'Rocky', roomCode: '9012', occupancy: '2' };
+//     const testRoomFour = { hostname: 'Jones', roomCode: '4747', occupancy: '1' }
+//     const testRooms = [testRoomOne, testRoomTwo, testRoomThree, testRoomFour];
 
-    const testRoomsSerialized = JSON.stringify(testRooms);
-    localStorage.setItem('dvd-game-availableRooms', testRoomsSerialized);
-}
+//     const testRoomsSerialized = JSON.stringify(testRooms);
+//     localStorage.setItem('dvd-game-availableRooms', testRoomsSerialized);
+// }
 
-createTestData();
+// createTestData();
 
 class Room {
     hostName;
     roomCode;
-    numPeopleInLobby;
+    occupancy;
     roomElement;
 
     constructor(roomData, roomElement) {
         this.hostname = roomData.hostname;
         this.roomCode = roomData.roomCode;
-        this.numPeopleInLobby = roomData.numPeopleInLobby;
+        this.occupancy = roomData.occupancy;
         this.roomElement = roomElement;
 
         this.createRoom();
@@ -47,7 +47,7 @@ class Room {
 
         const roomCapacityElement = document.createElement('span');
         roomCapacityElement.className = "room-capacity";
-        roomCapacityElement.textContent = `${this.numPeopleInLobby}/10`;
+        roomCapacityElement.textContent = `${this.occupancy}/10`;
 
         // Append those child elements to the root element
         this.roomElement.appendChild(hostNameElement);
@@ -55,9 +55,14 @@ class Room {
         this.roomElement.appendChild(roomCapacityElement);
     }
 
-    chooseRoom(room) {
-        lobbyHandler.saveRoomInfo(room.hostName, room.roomCode);
-        window.location.href = "game.html";
+    async chooseRoom(room) {
+        const isSuccessful = await lobbyHandler.joinRoom(room.roomCode);
+        if (isSuccessful) {
+            lobbyHandler.saveRoomInfo(room.hostName, room.roomCode);
+            window.location.href = "game.html";
+        } else {
+            print('A fatal error occurred trying to join the lobby.');
+        }
     }
 }
 
@@ -66,6 +71,17 @@ class LobbyHandler {
     rooms;
     roomChoicesElement;
 
+    _getRandomRoomCode() {
+        // I took out chars that might be confused with other chars (like 'O' and '0')
+        const possibleChars = ['A', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '2', '3', '4', '5', '6', '7', '9'];
+        let generatedChars = "";
+        for (let i = 0; i < 4; i++) {
+            const index = Math.floor(Math.random() * (possibleChars.length - 1));
+            generatedChars = generatedChars + possibleChars[index];
+        }
+        return generatedChars;
+    }
+
     constructor() {
         this._TIME_TO_REFRESH_ = 5000; // The page will refresh the available rooms every five seconds
         this.rooms = new Map();
@@ -73,35 +89,69 @@ class LobbyHandler {
 
         this.loadUsername();
         this.loadRooms();
+        // this.configureWebSocket();
         // this.refreshCycle(); TODO: when this actually starts to work, we'll uncomment this
     }
 
-    // TODO: searchRoom() - gets info from room search and searches for room, navigating to it if it exists
-    searchRoom() {
-        // WITHOUT WEB SOCKETS, this will basically just create a new lobby with the room code you put in
-        const roomCodeElement = document.querySelector('#room-code-input');
-        const roomCode = roomCodeElement.value;
-        const hostname = this.getHostname(roomCode);
-
-        // Save the info to local storage and change views to the game
-        this.saveRoomInfo(hostname, roomCode);
-        window.location.href = "game.html";
+    async joinRoom(roomCode) {
+        const response = await fetch(`/api/lobby/join`, {
+            method: 'POST',
+            body: JSON.stringify({ roomCode: roomCode, username: this.username }),
+            headers: { 'Content-Type': 'application/json; charset=UTF-8', }
+        });
+        if (response.status === 200) return true;
+        else return false;
     }
 
-    createRoom() {
-        // TODO: this
+    async searchRoom() {
+        const roomCodeElement = document.querySelector('#room-code-input');
+        const roomCode = roomCodeElement.value;
+        
+        const response = await fetch(`/api/lobby/${roomCode}`);
+        if (response.status === 200) {
+            const isSuccessful = await this.joinRoom(roomCode);
+            if (isSuccessful) {
+                this.saveRoomInfo('[hostname]', roomCode);
+                window.location.href = "game.html";
+            } else {
+                print('A fatal error occurred trying to join the lobby.');
+            }
+        } else {
+            print('That room does not exist.');
+        }
+    }
+
+    async createRoom() {
+        let roomCode;
+        let test;
+        do {
+            roomCode = this._getRandomRoomCode();
+            test = await fetch(`/api/lobby/${roomCode}`); // Make sure that that code isn't being used already
+        } while (test.status !== 204)
+
+        const response = await fetch(`/api/lobby`, {
+            method: 'POST',
+            body: JSON.stringify({ roomCode: roomCode, hostname: this.username }),
+            headers: { 'Content-Type': 'application/json; charset=UTF-8', }
+        });
+
+        if (response.status === 200) {
+            const isSuccessful = await this.joinRoom(roomCode);
+            if (isSuccessful) {
+                this.saveRoomInfo('[hostname]', roomCode);
+                window.location.href = 'game.html';
+            } else {
+                print('A fatal error occurred trying to join the lobby.');
+            }
+        } else {
+            print('A fatal error occurred.');
+        }
     }
 
     saveRoomInfo(hostname, roomCode) {
         // Save this room's info to local storage for later access
         localStorage.setItem('dvd-game-host-name', hostname);
         localStorage.setItem('dvd-game-room-code', roomCode);
-    }
-
-    // Given a room code, this will query the server for the name of the host that is hosting this room (if they exist)
-    getHostname(roomCode) {
-        // TODO: when we get web sockets and a database, hook this up to that
-        return '[Host name]';
     }
 
     // TODO: refreshRooms() - maybe tie this to a button to refresh the available room search!! (is there a way to do an auto-refresh every five seconds by chaining promises???)
@@ -121,9 +171,9 @@ class LobbyHandler {
 
     // Get the username of the currently logged-in user and update the username text element with it
     async loadUsername() {
-        const username = localStorage.getItem('dvd-game-username');
+        this.username = localStorage.getItem('dvd-game-username');
         const usernameElement = document.querySelector('#username-tag');
-        usernameElement.textContent = username ?? '[Anonymous Player]';
+        usernameElement.textContent = this.username ?? '[Anonymous Player]';
     }
 
     async loadRooms() {
@@ -132,43 +182,46 @@ class LobbyHandler {
         let availableRooms = await response.json();
         if (availableRooms) {
             // { name of host, room code }
-
-            // TODO: HOW DO WE GET THE NUMBER OF PEOPLE IN THE LOBBY??
+            if (availableRooms.length > 5) availableRooms.length = 5;
 
             // Save the loaded rooms to the rooms property
-            if (availableRooms.length) {
-                availableRooms.forEach((availableRoom, i) => {
-                    // Create an empty room element (which will be constructed by the Room class)
-                    const emptyRoomElement = document.createElement('button');
-                    emptyRoomElement.id = 'room-' + (i + 1); // e.g., 'room-1' or 'room-2'
-                    this.roomChoicesElement.appendChild(emptyRoomElement);
-                    this.rooms.set(emptyRoomElement.id, new Room(availableRoom, emptyRoomElement));
-                });
-            }
+            availableRooms.forEach((availableRoom, i) => {
+                const roomData = { hostname: availableRoom.hostname, roomCode: availableRoom.roomCode, occupancy: availableRoom.players.length };
+
+                // Create an empty room element (which will be constructed by the Room class)
+                const emptyRoomElement = document.createElement('button');
+                emptyRoomElement.id = 'room-' + (i + 1); // e.g., 'room-1' or 'room-2'
+                this.roomChoicesElement.appendChild(emptyRoomElement);
+                this.rooms.set(emptyRoomElement.id, new Room(roomData, emptyRoomElement));
+            });
         } else {
             // There are no lobbies available - - oof
             // TODO: IS THERE A WAY TO CREATE A LOBBY???
+            print('There are no available lobbies');
         }
-
-        // // Get all of the rooms from local storage
-        // const roomData = localStorage.getItem('dvd-game-availableRooms');
-        // let availableRooms = [];
-        // if (roomData) {
-        //     availableRooms = JSON.parse(roomData);
-        // }
-        // // { name of host, room code, number of people in lobby }
-
-        // // Save the loaded rooms to the rooms property
-        // if (availableRooms.length) {
-        //     availableRooms.forEach((availableRoom, i) => {
-        //         // Create an empty room element (which will be constructed by the Room class)
-        //         const emptyRoomElement = document.createElement('button');
-        //         emptyRoomElement.id = 'room-' + (i + 1); // e.g., 'room-1' or 'room-2'
-        //         this.roomChoicesElement.appendChild(emptyRoomElement);
-        //         this.rooms.set(emptyRoomElement.id, new Room(availableRoom, emptyRoomElement));
-        //     });
-        // }
     }
+
+    // async configureWebSocket() {
+    //     const protocol = window.location.protocol === 'http:' ? 'ws' : 'wss';
+    //     this.socket = new WebSocket(`${protocol}://${window.location.host}/ws`);
+    //     this.socket.onopen = (event) => {
+    //         print('Connection opening...');
+    //     };
+    //     this.socket.onclose = (event) => {
+    //         print('Connection closing...');
+    //     };
+    //     this.socket.onmessage = async (event) => {
+    //         print('Receiving message...');
+    //         this.loadRooms(availableRooms);
+
+    //         const msg = JSON.parse(await event.data.text());
+    //         if (msg.type === GameEndEvent) {
+    //             this.displayMsg('player', msg.from, `scored ${msg.value.score}`);
+    //         } else if (msg.type === GameStartEvent) {
+    //             this.displayMsg('player', msg.from, `started a new game`);
+    //         }
+    //     };
+    // }
 
     async delay(milliseconds) {
         return new Promise((resolve) => {

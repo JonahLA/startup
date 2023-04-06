@@ -2,9 +2,9 @@
 const { WebSocketServer } = require('ws');
 const uuid = require('uuid');
 
-const MESSAGE_TYPES = { getLobbies: 'getLobbies', joinLobby: 'joinLobby', leaveLobby: 'leaveLobby', startGame: 'startGame', playerTokenPlaced: 'playerTokenPlaced' };
-
 class PeerProxy {
+    MESSAGE_TYPES = { joinLobby: 'joinLobby', leaveLobby: 'leaveLobby', startGame: 'startGame', playerTokenPlaced: 'playerTokenPlaced' };
+
     constructor(httpServer) {
         // Create a WebSocket object
         const wss = new WebSocketServer({ noServer: true });
@@ -16,72 +16,74 @@ class PeerProxy {
             });
         });
 
-        // Keep track of 1) pendingConnections [or people on the lobby-choice page] and 2) lobbies [or people actually in-game]
-        // pendingConnection = { id: uuid, ws: ws, alive: boolean }
-        // lobby = { roomCode: 'AB12', hostname: host's username, players: [ connections ] }
-        //       TODO: HOSTNAME IS SET WHEN WS://createLobby (or event with type=createLobby)
-        let pendingConnections = [];
-        let lobbies = [];
+        // Keep track of connections for people in-game
+        // connection = { id: uuid, ws: ws, alive: boolean, roomCode: 1234 }
+        let connections = [];
 
         // Implement what happens when a user connects
-        wss.on('connection', (ws) => {
-            const connection = { id: uuid.v4(), ws: ws, alive: true };
-            pendingConnections.push(connection);
+        wss.on('connection', async (ws) => {
+            const connection = { id: uuid.v4(), ws: ws, alive: true, roomCode: null };
+            connections.push(connection);
 
             // Forward messages to everyone in the same lobby except the sender
             ws.on('message', async function message(data) {
                 const message = JSON.parse(await data.data.text());
 
-                // TODO: FIGURE OUT HOW TO DO THIS SINCE THE PLAYER WILL BE CHANGING PAGES!!! How will they maintain a connection? Do they need to pass data and open a connection???
-                if (message.type === MESSAGE_TYPES.getLobbies) {
-                    // If the player is asking for the lobby list, then send them back the list of all of the lobbies
-                    connection.ws.send(JSON.stringify(lobbies));
-                } else if (message.type === MESSAGE_TYPES.joinLobby) {
-                    // If the player is joining a lobby, remove them from pendingConnections and add them to the lobby
-                    pendingConnections.findIndex((c, i) => {
+                if (message.type === MESSAGE_TYPES.joinLobby) {
+                    connections.forEach((c) => {
                         if (c.id === connection.id) {
-                            pendingConnections.splice(i, 1);
-                            return true;
+                            c.roomCode = message.roomCode;
+                        } else if (c.roomCode === message.roomCode) {
+                            c.ws.send(data);
                         }
                     });
-
-                    lobbies.findIndex((l, i) => {
-                        if (l.roomCode === message.roomCode) {
-                            l.players.push(connection);
-                            return true;
-                        }
-                    });
-                } else if (message.type === MESSAGE_TYPES.leaveLobby) {
-                    // If the player is leaving a lobby, remove them from the lobby and add them to the pendingConnections
-                    lobbies.findIndex((l, i) => {
-                        if (l.roomCode === message.roomCode) {
-                            l.players.findIndex((p, i) => {
-                                if (p.id === connection.id) {
-                                    l.players.splice(i, 1);
-                                    return true;
-                                }
-                            });
-                            return true;
-                        }
-                    });
-                    pendingConnections.push(connection);
                 }
 
-                lobbies.forEach((lobby) => {
-                    // Only send the message to the lobby that the player attempts to connect to
-                    if (message.roomCode === lobby.roomCode) {
-                        lobby.players.forEach((player) => {
-                            if (player.id !== connection.id) {
-                                player.ws.send(data);
-                            }
-                        });
-                    }
-                });
+                // lobbies.forEach((lobby) => {
+                //     // Only send the message to the lobby that the player attempts to connect to
+                //     if (message.roomCode === lobby.roomCode) {
+                //         lobby.players.forEach((player) => {
+                //             if (player.id !== connection.id) {
+                //                 player.ws.send(data);
+                //             }
+                //         });
+                //     }
+                // });
             });
 
             // Remove the closed connection so we do not try to forward messages
             ws.on('close', () => {
-               // Remove the connection from the pendingConnections 
+                // let finished = false;
+
+                // // If the player was in a lobby, then remove them from the lobby
+                // lobbies.findIndex((l, i) => {
+                //     // See if the player is in the lobby
+                //     l.players.findIndex((p, i) => {
+                //         if (p.id === connection.id) {
+                //             l.players.splice(i, 1);
+
+                //             // If the lobby is left with no players left, close it
+                //             if (!l.players.length) {
+                //                 lobbies.splice(i, 1);
+                //                 database.deleteLobby(l.roomCode);
+                //             }
+
+                //             finished = true;
+                //             return true;
+                //         }
+                //     });
+                //     return true;
+                // });
+
+                // // Otherwise, remove them from pendingConnections
+                // if (!finished) {
+                //     connections.findIndex((c, i) => {
+                //         if (c.id === connection.id) {
+                //             connections.splice(i, 1);
+                //             return true;
+                //         }
+                //     });
+                // }
             });
 
             // Respond to pong messages by marking the connection as alive
@@ -92,7 +94,8 @@ class PeerProxy {
 
         // Keep active connections alive
         setInterval(() => {
-            pendingConnections.forEach((c) => {
+            // Ping the connections that are pending
+            connections.forEach((c) => {
                 // Kill any connection that did not respond to the ping message
                 if (!c.alive) {
                     c.ws.terminate();
