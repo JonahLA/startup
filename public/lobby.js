@@ -1,9 +1,9 @@
 
 function createTestData() {
-    const testRoomOne = { hostName: 'Kiegan', roomCode: '1234', numPeopleInLobby: '7' };
-    const testRoomTwo = { hostName: 'Tate', roomCode: '5678', numPeopleInLobby: '4' };
-    const testRoomThree = { hostName: 'Rocky', roomCode: '9012', numPeopleInLobby: '2' };
-    const testRoomFour = { hostName: 'Jones', roomCode: '4747', numPeopleInLobby: '1' }
+    const testRoomOne = { hostname: 'Kiegan', roomCode: '1234', numPeopleInLobby: '7' };
+    const testRoomTwo = { hostname: 'Tate', roomCode: '5678', numPeopleInLobby: '4' };
+    const testRoomThree = { hostname: 'Rocky', roomCode: '9012', numPeopleInLobby: '2' };
+    const testRoomFour = { hostname: 'Jones', roomCode: '4747', numPeopleInLobby: '1' }
     const testRooms = [testRoomOne, testRoomTwo, testRoomThree, testRoomFour];
 
     const testRoomsSerialized = JSON.stringify(testRooms);
@@ -19,7 +19,7 @@ class Room {
     roomElement;
 
     constructor(roomData, roomElement) {
-        this.hostName = roomData.hostName;
+        this.hostname = roomData.hostname;
         this.roomCode = roomData.roomCode;
         this.numPeopleInLobby = roomData.numPeopleInLobby;
         this.roomElement = roomElement;
@@ -39,7 +39,7 @@ class Room {
         // Create the child elements according to each of the properties
         const hostNameElement = document.createElement('span');
         hostNameElement.className = "room-user";
-        hostNameElement.textContent = this.hostName;
+        hostNameElement.textContent = this.hostname;
 
         const roomCodeElement = document.createElement('span');
         roomCodeElement.className = "room-code-option me-auto";
@@ -81,21 +81,25 @@ class LobbyHandler {
         // WITHOUT WEB SOCKETS, this will basically just create a new lobby with the room code you put in
         const roomCodeElement = document.querySelector('#room-code-input');
         const roomCode = roomCodeElement.value;
-        const hostName = this.getHostName(roomCode);
+        const hostname = this.getHostname(roomCode);
 
         // Save the info to local storage and change views to the game
-        this.saveRoomInfo(hostName, roomCode);
+        this.saveRoomInfo(hostname, roomCode);
         window.location.href = "game.html";
     }
 
-    saveRoomInfo(hostName, roomCode) {
+    createRoom() {
+        // TODO: this
+    }
+
+    saveRoomInfo(hostname, roomCode) {
         // Save this room's info to local storage for later access
-        localStorage.setItem('dvd-game-host-name', hostName);
+        localStorage.setItem('dvd-game-host-name', hostname);
         localStorage.setItem('dvd-game-room-code', roomCode);
     }
 
     // Given a room code, this will query the server for the name of the host that is hosting this room (if they exist)
-    getHostName(roomCode) {
+    getHostname(roomCode) {
         // TODO: when we get web sockets and a database, hook this up to that
         return '[Host name]';
     }
@@ -122,25 +126,48 @@ class LobbyHandler {
         usernameElement.textContent = username ?? '[Anonymous Player]';
     }
 
-    loadRooms() {
-        // Get all of the rooms from local storage
-        const roomData = localStorage.getItem('dvd-game-availableRooms');
-        let availableRooms = [];
-        if (roomData) {
-            availableRooms = JSON.parse(roomData);
-        }
-        // { name of host, room code, number of people in lobby }
+    async loadRooms() {
+        // Use endpoint to query database for lobbies
+        const response = await fetch('/api/lobby'); 
+        let availableRooms = await response.json();
+        if (availableRooms) {
+            // { name of host, room code }
 
-        // Save the loaded rooms to the rooms property
-        if (availableRooms.length) {
-            availableRooms.forEach((availableRoom, i) => {
-                // Create an empty room element (which will be constructed by the Room class)
-                const emptyRoomElement = document.createElement('button');
-                emptyRoomElement.id = 'room-' + (i + 1); // e.g., 'room-1' or 'room-2'
-                this.roomChoicesElement.appendChild(emptyRoomElement);
-                this.rooms.set(emptyRoomElement.id, new Room(availableRoom, emptyRoomElement));
-            });
+            // TODO: HOW DO WE GET THE NUMBER OF PEOPLE IN THE LOBBY??
+
+            // Save the loaded rooms to the rooms property
+            if (availableRooms.length) {
+                availableRooms.forEach((availableRoom, i) => {
+                    // Create an empty room element (which will be constructed by the Room class)
+                    const emptyRoomElement = document.createElement('button');
+                    emptyRoomElement.id = 'room-' + (i + 1); // e.g., 'room-1' or 'room-2'
+                    this.roomChoicesElement.appendChild(emptyRoomElement);
+                    this.rooms.set(emptyRoomElement.id, new Room(availableRoom, emptyRoomElement));
+                });
+            }
+        } else {
+            // There are no lobbies available - - oof
+            // TODO: IS THERE A WAY TO CREATE A LOBBY???
         }
+
+        // // Get all of the rooms from local storage
+        // const roomData = localStorage.getItem('dvd-game-availableRooms');
+        // let availableRooms = [];
+        // if (roomData) {
+        //     availableRooms = JSON.parse(roomData);
+        // }
+        // // { name of host, room code, number of people in lobby }
+
+        // // Save the loaded rooms to the rooms property
+        // if (availableRooms.length) {
+        //     availableRooms.forEach((availableRoom, i) => {
+        //         // Create an empty room element (which will be constructed by the Room class)
+        //         const emptyRoomElement = document.createElement('button');
+        //         emptyRoomElement.id = 'room-' + (i + 1); // e.g., 'room-1' or 'room-2'
+        //         this.roomChoicesElement.appendChild(emptyRoomElement);
+        //         this.rooms.set(emptyRoomElement.id, new Room(availableRoom, emptyRoomElement));
+        //     });
+        // }
     }
 
     async delay(milliseconds) {
