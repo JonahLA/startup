@@ -9,7 +9,7 @@ const { PeerProxy } = require('./peerProxy.js');
 const AUTH_COOKIE_NAME = "token"
 
 // Get the port that we will use OR use a default port
-const port = (process.argv.length > 2) ? process.argv[2] : 3000;
+const port = (process.argv.length > 2) ? process.argv[2] : 4000;
 
 // JSON body parsing using built-in middleware
 app.use(express.json());
