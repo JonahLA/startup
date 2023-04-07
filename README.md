@@ -60,3 +60,21 @@ GAME DESIGN
  - A common framework for handling drawing to a canvas is to set everything up into a `loop` function that is the one that cycles, an `update` function that handles the logic, and a `draw` function that draws elements to the canvas.
  - PROMISES ARE REALLY GOOD FOR MAKING LOOPS!!!
  - CANVAS IS WEIRD!! There are two `width` and `height` attributes essentially: one that defines the actual size of the element and then another that defines the size of the coordinate plane inside of the canvas (which is then scaled to the actual size of the canvas).
+
+---
+
+### SERVICE DELIVERABLE NOTES
+
+OVERALL
+ - HOLY COW this was a headache but a good one because it forced me to learn a lot
+ - ***DESIGN AND PLAN EVERYTHING OUT FIRST!!!*** I had a mess of a time thinking that I understood how something would work (like trying to handle joining lobbies solely via WebSockets - - that did NOT work after hours of trying) and then realizing it wouldn't and then having my code all messy. DRAW IT OUT
+ - ***I ACTUALLY REALLY LIKE MY IDEA - - come back to it during the summer when I actually have more time. CS240 is whipping me atm.
+ 
+WEBSOCKETS
+ - UNDERSTAND THE SCOPE OF WEBSOCKETS - - They are great for routing messages and allowing the server to talk to clients without needing a request to come in to spark something. They are NOT good for handling lobbies all on their own (like joining them and leaving them and whatnot). DON'T TREAT THEM LIKE AN API.
+ - TODO: the client's game 'onclose' event isn't being fired when the client changes the page? idk what that is about
+ - I really like the example of directly changing the innerHTML to add elements in order to modify classes and CSS properties like that.
+
+MISC.
+ - Lobby handling ended up being done internally on the server. I DON'T NEED TO STORE LOBBIES IN A DATABASE - - that seems like a hassle.
+   - TODO: OH LOL bc the 'onclose' wasn't working, I never got clients to leave lobbies, really. I am never calling that endpoint (that is tested and works) to actually take players out of a lobby.
