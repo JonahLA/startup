@@ -222,11 +222,20 @@ class Game {
     height;
     state;
     tokens;
+    roomCode;
+    username;
     instructionTextElement;
+
+    // Generate a random color
+    _getRandomColor() {
+        return '#'+(0x1000000+Math.random()*0xffffff).toString(16).substr(1,6);
+    }
 
     constructor() {
         this.canvas = document.querySelector('.game-area');
         this.context = this.canvas.getContext("2d");
+        this.roomCode = localStorage.getItem('dvd-game-room-code');
+        this.username = localStorage.getItem('dvd-game-username');
         this.state = {
             isGameActive: false
         }
@@ -235,12 +244,11 @@ class Game {
 
         this.tokens = { 
             dvdLogo: new DVDLogoToken(this.width / 2, this.height / 2, this.context), 
-            players: [
-                //new PlayerToken(this.width / 2, this.height / 3, this.context, 'J', 'red')
-            ] 
+            players: [] 
         };
 
         this.instructionTextElement = document.getElementById('instruction-text');
+        this.configureWebSocket();
     }
 
     getCursorPosition(event) {
@@ -257,8 +265,7 @@ class Game {
             // TODO: if the player clicks too close to the edge, adjust it in so that the player is fully visible
 
             // Get the username and use the first letter in the token
-            const username = localStorage.getItem('username');
-            const letter = username.charAt(0).toUpperCase();
+            const letter = this.username.charAt(0).toUpperCase();
 
             // Get random color for token
             const color = this._getRandomColor();
@@ -319,11 +326,31 @@ class Game {
         player.eliminate();
         this.state.isGameActive = false;
         this.instructionTextElement.textContent = "You lose!";
+        this.socket.send(JSON.stringify({ type:'playerDied', roomCode: this.roomCode, from: this.username }));
     }
 
-    // Generate a random color
-    _getRandomColor() {
-        return '#'+(0x1000000+Math.random()*0xffffff).toString(16).substr(1,6);
+    configureWebSocket() {
+        const protocol = window.location.protocol === 'http:' ? 'ws' : 'wss';
+        this.socket = new WebSocket(`${protocol}://${window.location.host}/ws`);
+        this.socket.onopen = () => {
+            this.socket.send(JSON.stringify({ type:'joinLobby', roomCode: this.roomCode, from: this.username }));
+            gameHandler.displayMessage('system', `You`, `have joined the lobby (#${this.roomCode})`);
+        };
+        this.socket.onclose = () => {
+            console.log('The socket was closed.');
+            this.socket.send(JSON.stringify({ type:'leaveLobby', roomCode: this.roomCode, from: this.username }));
+            gameHandler.displayMessage('system', `You`, `have left the lobby (#${this.roomCode})`);
+        };
+        this.socket.onmessage = async (event) => {
+            const message = JSON.parse(await event.data.text());
+            if (message.type === 'joinLobby') {
+                gameHandler.displayMessage('player', message.from, `joined the lobby`)
+            } else if (message.type === 'leaveLobby') {
+                gameHandler.displayMessage('player', message.from, `left the lobby`);
+            } else if (message.type === 'playerDied') {
+                gameHandler.displayMessage('player', message.from, `was eliminated`);
+            }
+        };
     }
 }
 
@@ -349,6 +376,11 @@ class GameHandler {
         const roomCode = localStorage.getItem('dvd-game-room-code');
         const roomCodeElement = document.querySelector('#room-code-tag');
         roomCodeElement.textContent = `/${roomCode ?? '####'}`;
+    }
+
+    displayMessage(type, from, message) {
+        const messagesElement = document.getElementById('game-messages');
+        messagesElement.innerHTML = `<div class="game-message"><span class="game-message-${type}">${from}</span> ${message}</div>` + messagesElement.innerHTML;4
     }
 }
 

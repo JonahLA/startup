@@ -136,6 +136,10 @@ footer a {
     padding: 10px;
 }
 
+.game-outer-section {
+    flex-direction: row;
+}
+
 .game-section {
     margin: 5px;
     flex: 1;
@@ -145,6 +149,14 @@ footer a {
     width: 100%;
     max-width: 1525px;
     border: 1px solid rgb(var(--bs-dark-rgb));
+}
+
+.game-message-player {
+    color: rgb(173, 20, 20);
+}
+
+.game-message-system {
+    color: rgb(0, 73, 12);
 }
 
 /* Google icon style */
@@ -182,7 +194,14 @@ footer a {
     font-weight: bold;
 }
 
-<!-- TODO: what do these do??? -->
+#game-messages {
+    flex: 0 25%;
+}
+
+#player-messages {
+    opacity: 0.7;
+}
+
 #username {
     margin: 0.5em;
     padding: 0.25em;
@@ -201,6 +220,10 @@ footer a {
     .players-row > * {
         flex: 0 0 auto;
         width: 50%;
+    }
+
+    .game-outer-section {
+        flex-direction: column;
     }
 }
 

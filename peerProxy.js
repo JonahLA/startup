@@ -1,10 +1,9 @@
 
 const { WebSocketServer } = require('ws');
 const uuid = require('uuid');
+const MESSAGE_TYPES = { joinLobby: 'joinLobby', leaveLobby: 'leaveLobby', startGame: 'startGame', playerTokenPlaced: 'playerTokenPlaced' };
 
 class PeerProxy {
-    MESSAGE_TYPES = { joinLobby: 'joinLobby', leaveLobby: 'leaveLobby', startGame: 'startGame', playerTokenPlaced: 'playerTokenPlaced' };
-
     constructor(httpServer) {
         // Create a WebSocket object
         const wss = new WebSocketServer({ noServer: true });
@@ -27,7 +26,8 @@ class PeerProxy {
 
             // Forward messages to everyone in the same lobby except the sender
             ws.on('message', async function message(data) {
-                const message = JSON.parse(await data.data.text());
+                const dataString = String.fromCharCode.apply(null, new Uint16Array(data));
+                const message = JSON.parse(dataString);
 
                 if (message.type === MESSAGE_TYPES.joinLobby) {
                     connections.forEach((c) => {
@@ -37,53 +37,23 @@ class PeerProxy {
                             c.ws.send(data);
                         }
                     });
+                } else {
+                    connections.forEach((c) => {
+                        if (c.roomCode === message.roomCode) {
+                            if (c.id !== connection.id) c.ws.send(data);
+                        }
+                    });
                 }
-
-                // lobbies.forEach((lobby) => {
-                //     // Only send the message to the lobby that the player attempts to connect to
-                //     if (message.roomCode === lobby.roomCode) {
-                //         lobby.players.forEach((player) => {
-                //             if (player.id !== connection.id) {
-                //                 player.ws.send(data);
-                //             }
-                //         });
-                //     }
-                // });
             });
 
             // Remove the closed connection so we do not try to forward messages
             ws.on('close', () => {
-                // let finished = false;
-
-                // // If the player was in a lobby, then remove them from the lobby
-                // lobbies.findIndex((l, i) => {
-                //     // See if the player is in the lobby
-                //     l.players.findIndex((p, i) => {
-                //         if (p.id === connection.id) {
-                //             l.players.splice(i, 1);
-
-                //             // If the lobby is left with no players left, close it
-                //             if (!l.players.length) {
-                //                 lobbies.splice(i, 1);
-                //                 database.deleteLobby(l.roomCode);
-                //             }
-
-                //             finished = true;
-                //             return true;
-                //         }
-                //     });
-                //     return true;
-                // });
-
-                // // Otherwise, remove them from pendingConnections
-                // if (!finished) {
-                //     connections.findIndex((c, i) => {
-                //         if (c.id === connection.id) {
-                //             connections.splice(i, 1);
-                //             return true;
-                //         }
-                //     });
-                // }
+                connections.findIndex((c, i) => {
+                    if (c.id === connection.id) {
+                        connections.splice(i, 1);
+                        return true;
+                    }
+                });
             });
 
             // Respond to pong messages by marking the connection as alive

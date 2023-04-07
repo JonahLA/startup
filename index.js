@@ -182,7 +182,7 @@ let lobbies = [];
 function getLobbies() {
     let availableLobbies = [];
     lobbies.forEach((lobby) => {
-        if (lobby.players.length < 10) availableLobbies.push(lobbies);
+        if (lobby.players.length < 10) availableLobbies.push(lobby);
     });
     return availableLobbies;
 }

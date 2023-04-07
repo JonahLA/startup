@@ -1,17 +1,4 @@
 
-// function createTestData() {
-//     const testRoomOne = { hostname: 'Kiegan', roomCode: '1234', occupancy: '7' };
-//     const testRoomTwo = { hostname: 'Tate', roomCode: '5678', occupancy: '4' };
-//     const testRoomThree = { hostname: 'Rocky', roomCode: '9012', occupancy: '2' };
-//     const testRoomFour = { hostname: 'Jones', roomCode: '4747', occupancy: '1' }
-//     const testRooms = [testRoomOne, testRoomTwo, testRoomThree, testRoomFour];
-
-//     const testRoomsSerialized = JSON.stringify(testRooms);
-//     localStorage.setItem('dvd-game-availableRooms', testRoomsSerialized);
-// }
-
-// createTestData();
-
 class Room {
     hostName;
     roomCode;
@@ -29,8 +16,6 @@ class Room {
 
     // Uses room information to create element in DOM
     createRoom() {
-        console.log(`Creating room ${this.roomElement.id}...`);
-
         // Set the inner HTML for the root element
         this.roomElement.className = "btn btn-outline-secondary d-flex flex-row";
         this.roomElement.type = "submit";
@@ -61,13 +46,12 @@ class Room {
             lobbyHandler.saveRoomInfo(room.hostName, room.roomCode);
             window.location.href = "game.html";
         } else {
-            print('A fatal error occurred trying to join the lobby.');
+            console.log('A fatal error occurred trying to join the lobby.');
         }
     }
 }
 
 class LobbyHandler {
-    _TIME_TO_REFRESH_;
     rooms;
     roomChoicesElement;
 
@@ -83,14 +67,11 @@ class LobbyHandler {
     }
 
     constructor() {
-        this._TIME_TO_REFRESH_ = 5000; // The page will refresh the available rooms every five seconds
         this.rooms = new Map();
         this.roomChoicesElement = document.querySelector('.room-choices');
 
         this.loadUsername();
         this.loadRooms();
-        // this.configureWebSocket();
-        // this.refreshCycle(); TODO: when this actually starts to work, we'll uncomment this
     }
 
     async joinRoom(roomCode) {
@@ -114,10 +95,10 @@ class LobbyHandler {
                 this.saveRoomInfo('[hostname]', roomCode);
                 window.location.href = "game.html";
             } else {
-                print('A fatal error occurred trying to join the lobby.');
+                console.log('A fatal error occurred trying to join the lobby.');
             }
         } else {
-            print('That room does not exist.');
+            console.log('That room does not exist.');
         }
     }
 
@@ -141,10 +122,10 @@ class LobbyHandler {
                 this.saveRoomInfo('[hostname]', roomCode);
                 window.location.href = 'game.html';
             } else {
-                print('A fatal error occurred trying to join the lobby.');
+                console.log('A fatal error occurred trying to join the lobby.');
             }
         } else {
-            print('A fatal error occurred.');
+            console.log('A fatal error occurred.');
         }
     }
 
@@ -152,21 +133,6 @@ class LobbyHandler {
         // Save this room's info to local storage for later access
         localStorage.setItem('dvd-game-host-name', hostname);
         localStorage.setItem('dvd-game-room-code', roomCode);
-    }
-
-    // TODO: refreshRooms() - maybe tie this to a button to refresh the available room search!! (is there a way to do an auto-refresh every five seconds by chaining promises???)
-    refreshCycle() {
-        // TODO: this (HOW DO I USE PROMISES SO THIS IS ON A TIMER WITHOUT ACTUALLY BLOCKING EVERYTHING?)
-        this.delay(this._TIME_TO_REFRESH_)
-            .then((isSuccessful) => this.performRefresh(isSuccessful));
-    }
-
-    performRefresh(isSuccessful) {
-        // If the refresh is successful, do something
-        
-        // If the refresh is not successful, then do something else
-
-        // TODO: THIS WON'T WORK!! WE NEED A FUNCTION TO CHECK IF THERE ARE OPEN ROOMS AND TO RESOLVE/REJECT BASED ON THAT
     }
 
     // Get the username of the currently logged-in user and update the username text element with it
@@ -196,32 +162,9 @@ class LobbyHandler {
             });
         } else {
             // There are no lobbies available - - oof
-            // TODO: IS THERE A WAY TO CREATE A LOBBY???
-            print('There are no available lobbies');
+            console.log('There are no available lobbies');
         }
     }
-
-    // async configureWebSocket() {
-    //     const protocol = window.location.protocol === 'http:' ? 'ws' : 'wss';
-    //     this.socket = new WebSocket(`${protocol}://${window.location.host}/ws`);
-    //     this.socket.onopen = (event) => {
-    //         print('Connection opening...');
-    //     };
-    //     this.socket.onclose = (event) => {
-    //         print('Connection closing...');
-    //     };
-    //     this.socket.onmessage = async (event) => {
-    //         print('Receiving message...');
-    //         this.loadRooms(availableRooms);
-
-    //         const msg = JSON.parse(await event.data.text());
-    //         if (msg.type === GameEndEvent) {
-    //             this.displayMsg('player', msg.from, `scored ${msg.value.score}`);
-    //         } else if (msg.type === GameStartEvent) {
-    //             this.displayMsg('player', msg.from, `started a new game`);
-    //         }
-    //     };
-    // }
 
     async delay(milliseconds) {
         return new Promise((resolve) => {
